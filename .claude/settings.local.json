@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p src/{components/{ui,layout,products,cart,auth,admin,common},pages,hooks,contexts,utils,services,lib,assets/images})",
+      "Bash(npm install react-router-dom lucide-react @radix-ui/react-slot @radix-ui/react-dropdown-menu class-variance-authority clsx tailwind-merge)",
+      "Bash(npx esbuild src/**/*.jsx --format=esm --target=es2020)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
