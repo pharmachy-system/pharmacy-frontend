@@ -38,6 +38,7 @@ function App() {
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
                 <Route path="/medicines" element={<ProductsPage />} />
+          <Route path="/products" element={<ProductsPage />} />
                 <Route path="/product/:id" element={<ProductDetailPage />} />
                 <Route path="/category/:category" element={<ProductsPage />} />
                 <Route path="/search" element={<ProductsPage />} />
