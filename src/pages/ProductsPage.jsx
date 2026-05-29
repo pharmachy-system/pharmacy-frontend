@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { PackageX, Loader2 } from 'lucide-react';
-import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 import ProductsHeroCarousel from '../components/ProductsHeroCarousel';
 import ProductsTopBar from '../components/ProductsTopBar';
@@ -109,7 +108,6 @@ const ProductsPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-cyan-50/30 to-blue-50/20" dir="rtl">
-      <Header />
 
       <main className="container mx-auto px-4 md:px-6 py-6 md:py-8">
         <section className="mb-8">
