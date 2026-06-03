@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Heart, ShoppingCart, Star, Eye } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useCart } from '../contexts/CartContext';
 
 const ProductCard = ({ product, onAddToCart, onToggleWishlist, index = 0 }) => {
   const [isWishlisted, setIsWishlisted] = useState(false);
@@ -14,10 +15,11 @@ const ProductCard = ({ product, onAddToCart, onToggleWishlist, index = 0 }) => {
     onToggleWishlist?.(product);
   };
 
+  const { addToCart } = useCart();
   const handleAddToCart = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    onAddToCart?.(product);
+    addToCart(product, 1);
   };
 
   return (

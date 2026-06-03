@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { PackageX, Loader2 } from 'lucide-react';
-import Footer from '../components/layout/Footer';
 import ProductsHeroCarousel from '../components/ProductsHeroCarousel';
 import ProductsTopBar from '../components/ProductsTopBar';
 import ProductsFilterSidebar from '../components/ProductsFilterSidebar';
@@ -198,7 +197,6 @@ const ProductsPage = () => {
         </section>
       </main>
 
-      <Footer />
     </div>
   );
 };
