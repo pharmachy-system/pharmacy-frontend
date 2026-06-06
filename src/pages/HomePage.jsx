@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import HeroSection from "../components/HeroSection";
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import {

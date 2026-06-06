@@ -1,13 +1,10 @@
-import { motion } from 'framer-motion';
-import { Star, Quote } from 'lucide-react';
-
-const REVIEWS = [
-  { text: 'خدمة ممتازة وتوصيل سريع!', rating: 5, location: 'الرياض' },
-  { text: 'صيدلية موثوقة وأسعار منافسة.', rating: 5, location: 'جدة' },
-  { text: 'واجهة رائعة ودعم سريع.', rating: 5, location: 'المدينة المنورة' },
-];
-
 export default function TestimonialsSection() {
+  const REVIEWS = [
+    { text: 'خدمة ممتازة وتوصيل سريع!', rating: 5, location: 'الرياض' },
+    { text: 'صيدلية موثوقة وأسعار منافسة.', rating: 5, location: 'جدة' },
+    { text: 'واجهة رائعة ودعم سريع.', rating: 5, location: 'المدينة المنورة' },
+  ];
+
   return (
     <section className="py-16 bg-blue-50" dir="rtl">
       <div className="max-w-6xl mx-auto px-4">
@@ -15,7 +12,6 @@ export default function TestimonialsSection() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {REVIEWS.map((r, i) => (
             <div key={i} className="bg-white rounded-2xl p-6 shadow-lg">
-              <Quote className="text-pharmacy-cyan mb-3" size={24} />
               <p className="text-gray-600 mb-4">{r.text}</p>
               <p className="text-sm text-gray-400">{r.location}</p>
             </div>
