@@ -22,6 +22,8 @@ import ProtectedRoute from './components/ProtectedRoute'
 import AdminRoute from './components/AdminRoute'
 import './index.css'
 import DrugInteractionPage from "./pages/DrugInteractionPage";
+import WishlistPage from "./pages/WishlistPage";
+import NotFoundPage from "./pages/NotFoundPage";
 function App() {
   return (
     <Router>
@@ -49,7 +51,9 @@ function App() {
                 <Route path="/prescriptions" element={<ProtectedRoute><PrescriptionsPage /></ProtectedRoute>} />
                 <Route path="/drug-interactions" element={<DrugInteractionPage />} />
                 <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
-              </Routes>
+                <Route path="/wishlist" element={<WishlistPage />} />
+        <Route path="*" element={<NotFoundPage />} />
+        </Routes>
             </main>
             <Footer />
           </div>
