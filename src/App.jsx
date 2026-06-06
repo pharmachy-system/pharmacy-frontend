@@ -22,6 +22,7 @@ import ProtectedRoute from './components/ProtectedRoute'
 import AdminRoute from './components/AdminRoute'
 import './index.css'
 import DrugInteractionPage from "./pages/DrugInteractionPage";
+import SearchResultsPage from "./pages/SearchResultsPage";
 import WishlistPage from "./pages/WishlistPage";
 import NotFoundPage from "./pages/NotFoundPage";
 function App() {
@@ -43,7 +44,7 @@ function App() {
           <Route path="/products" element={<ProductsPage />} />
                 <Route path="/product/:id" element={<ProductDetailPage />} />
                 <Route path="/category/:category" element={<ProductsPage />} />
-                <Route path="/search" element={<ProductsPage />} />
+                <Route path="/search" element={<SearchResultsPage />} />
                 <Route path="/cart" element={<CartPage />} />
                 <Route path="/checkout" element={<CheckoutPage />} />
                 <Route path="/account" element={<ProtectedRoute><AccountPage /></ProtectedRoute>} />
