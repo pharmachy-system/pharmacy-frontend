@@ -6,6 +6,10 @@ import {
   Search, ChevronLeft, ChevronRight,
   Star, CheckCircle2, Package, RefreshCw, Headphones
 } from "lucide-react";
+import BestDealsSection from '../components/BestDealsSection';
+import FlashSalesSection from '../components/FlashSalesSection';
+import HealthConcernsSection from '../components/HealthConcernsSection';
+import TestimonialsSection from '../components/TestimonialsSection';
 
 /* ─── DATA ─── */
 const heroSlides = [
@@ -397,6 +401,10 @@ export default function HomePage() {
           .trust-grid { grid-template-columns: 1fr !important; }
         }
       `}</style>
+      <BestDealsSection />
+      <FlashSalesSection />
+      <HealthConcernsSection />
+      <TestimonialsSection />
     </div>
   );
 }
