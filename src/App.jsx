@@ -25,6 +25,7 @@ import DrugInteractionPage from "./pages/DrugInteractionPage";
 import CategoryPage from "./pages/CategoryPage";
 import SearchResultsPage from "./pages/SearchResultsPage";
 import WishlistPage from "./pages/WishlistPage";
+import ConsultationPage from "./pages/ConsultationPage";
 import ReviewsPage from "./pages/ReviewsPage";
 import FAQPage from "./pages/FAQPage";
 import AboutPage from "./pages/AboutPage";
@@ -68,7 +69,8 @@ function App() {
                 <Route path="/prescriptions" element={<ProtectedRoute><PrescriptionsPage /></ProtectedRoute>} />
                 <Route path="/drug-interactions" element={<DrugInteractionPage />} />
                 <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
-                <Route path="/reviews" element={<ReviewsPage />} />
+                <Route path="/consultation" element={<ConsultationPage />} />
+              <Route path="/reviews" element={<ReviewsPage />} />
               <Route path="/faq" element={<FAQPage />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/contact" element={<ContactPage />} />
