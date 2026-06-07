@@ -25,6 +25,7 @@ import DrugInteractionPage from "./pages/DrugInteractionPage";
 import CategoryPage from "./pages/CategoryPage";
 import SearchResultsPage from "./pages/SearchResultsPage";
 import WishlistPage from "./pages/WishlistPage";
+import LoyaltyPage from "./pages/LoyaltyPage";
 import WalletPage from "./pages/WalletPage";
 import NotificationsPage from "./pages/NotificationsPage";
 import ProfileEditPage from "./pages/ProfileEditPage";
@@ -61,7 +62,8 @@ function App() {
                 <Route path="/prescriptions" element={<ProtectedRoute><PrescriptionsPage /></ProtectedRoute>} />
                 <Route path="/drug-interactions" element={<DrugInteractionPage />} />
                 <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
-                <Route path="/wallet" element={<WalletPage />} />
+                <Route path="/loyalty" element={<LoyaltyPage />} />
+              <Route path="/wallet" element={<WalletPage />} />
               <Route path="/notifications" element={<NotificationsPage />} />
               <Route path="/profile/edit" element={<ProfileEditPage />} />
               <Route path="/privacy" element={<PrivacyPolicyPage />} />
