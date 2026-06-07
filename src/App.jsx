@@ -25,6 +25,8 @@ import DrugInteractionPage from "./pages/DrugInteractionPage";
 import CategoryPage from "./pages/CategoryPage";
 import SearchResultsPage from "./pages/SearchResultsPage";
 import WishlistPage from "./pages/WishlistPage";
+import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
+import TermsPage from "./pages/TermsPage";
 import AddressesPage from "./pages/AddressesPage";
 import OrderDetailPage from "./pages/OrderDetailPage";
 import OrderTrackingPage from "./pages/OrderTrackingPage";
@@ -56,7 +58,9 @@ function App() {
                 <Route path="/prescriptions" element={<ProtectedRoute><PrescriptionsPage /></ProtectedRoute>} />
                 <Route path="/drug-interactions" element={<DrugInteractionPage />} />
                 <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
-                <Route path="/addresses" element={<AddressesPage />} />
+                <Route path="/privacy" element={<PrivacyPolicyPage />} />
+              <Route path="/terms" element={<TermsPage />} />
+              <Route path="/addresses" element={<AddressesPage />} />
               <Route path="/orders/:id" element={<OrderDetailPage />} />
               <Route path="/orders/:id/tracking" element={<OrderTrackingPage />} />
               <Route path="/wishlist" element={<WishlistPage />} />
