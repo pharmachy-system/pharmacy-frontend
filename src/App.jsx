@@ -22,8 +22,11 @@ import ProtectedRoute from './components/ProtectedRoute'
 import AdminRoute from './components/AdminRoute'
 import './index.css'
 import DrugInteractionPage from "./pages/DrugInteractionPage";
+import CategoryPage from "./pages/CategoryPage";
 import SearchResultsPage from "./pages/SearchResultsPage";
 import WishlistPage from "./pages/WishlistPage";
+import OrderDetailPage from "./pages/OrderDetailPage";
+import OrderTrackingPage from "./pages/OrderTrackingPage";
 import NotFoundPage from "./pages/NotFoundPage";
 function App() {
   return (
@@ -43,7 +46,7 @@ function App() {
                 <Route path="/medicines" element={<ProductsPage />} />
           <Route path="/products" element={<ProductsPage />} />
                 <Route path="/product/:id" element={<ProductDetailPage />} />
-                <Route path="/category/:category" element={<ProductsPage />} />
+                <Route path="/category/:category" element={<CategoryPage />} />
                 <Route path="/search" element={<SearchResultsPage />} />
                 <Route path="/cart" element={<CartPage />} />
                 <Route path="/checkout" element={<CheckoutPage />} />
@@ -52,7 +55,9 @@ function App() {
                 <Route path="/prescriptions" element={<ProtectedRoute><PrescriptionsPage /></ProtectedRoute>} />
                 <Route path="/drug-interactions" element={<DrugInteractionPage />} />
                 <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
-                <Route path="/wishlist" element={<WishlistPage />} />
+                <Route path="/orders/:id" element={<OrderDetailPage />} />
+              <Route path="/orders/:id/tracking" element={<OrderTrackingPage />} />
+              <Route path="/wishlist" element={<WishlistPage />} />
         <Route path="*" element={<NotFoundPage />} />
         </Routes>
             </main>
