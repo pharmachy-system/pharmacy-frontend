@@ -39,6 +39,7 @@ import ProfileEditPage from "./pages/ProfileEditPage";
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import TermsPage from "./pages/TermsPage";
 import AddressesPage from "./pages/AddressesPage";
+import ReturnsPage from './pages/ReturnsPage';
 import OrderDetailPage from "./pages/OrderDetailPage";
 import OrderTrackingPage from "./pages/OrderTrackingPage";
 import NotFoundPage from "./pages/NotFoundPage";
@@ -83,6 +84,7 @@ function App() {
               <Route path="/privacy" element={<PrivacyPolicyPage />} />
               <Route path="/terms" element={<TermsPage />} />
               <Route path="/addresses" element={<AddressesPage />} />
+              <Route path="/returns" element={<ReturnsPage />} />
               <Route path="/orders/:id" element={<OrderDetailPage />} />
               <Route path="/orders/:id/tracking" element={<OrderTrackingPage />} />
               <Route path="/wishlist" element={<WishlistPage />} />
