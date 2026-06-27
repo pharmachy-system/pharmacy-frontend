@@ -28,8 +28,8 @@ export function CartProvider({ children }) {
       return [...current, {
         _id: product._id,
         name: product.name,
-        price: product.price,
-        image: product.image,
+        price: product.finalPrice ?? product.price,
+        image: product.image || product.images?.[0] || null,
         quantity: quantity
       }]
     })

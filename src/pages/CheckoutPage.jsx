@@ -1,17 +1,30 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircle, CreditCard, Truck, MapPin, User, Phone, ChevronDown, Lock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '../contexts/CartContext';
+import { useAuth } from '../contexts/AuthContext';
+import { createOrder } from '../api/orders';
 
 const STEPS = ['معلومات التوصيل', 'طريقة الدفع', 'تأكيد الطلب'];
 
 export default function CheckoutPage() {
   const { cartItems, getTotalPrice, getTotalItems, clearCart } = useCart();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
+  const [orderError, setOrderError] = useState('');
+  const [orderId, setOrderId] = useState(null);
+
+  useEffect(() => {
+    if (!user) {
+      navigate('/login', { state: { from: { pathname: '/checkout' } } });
+    } else if (cartItems.length === 0) {
+      navigate('/cart');
+    }
+  }, [user, cartItems.length]);
 
   const totalPrice = getTotalPrice();
   const shipping = totalPrice >= 200 ? 0 : 25;
@@ -27,11 +40,29 @@ export default function CheckoutPage() {
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
   const handleOrder = async () => {
+    setOrderError('');
     setLoading(true);
-    await new Promise(r => setTimeout(r, 1800));
-    setLoading(false);
-    setDone(true);
-    clearCart();
+    try {
+      const payload = {
+        items: cartItems.map(item => ({ medicine: item._id, quantity: item.quantity })),
+        paymentMethod: ['card', 'mada', 'stc'].includes(form.payMethod) ? 'card' : form.payMethod,
+        shippingAddress: {
+          fullName: form.name,
+          phone: form.phone,
+          street: form.street || form.district,
+          city: form.city,
+        },
+        notes: form.notes || undefined,
+      };
+      const data = await createOrder(payload);
+      setOrderId(data.order?._id || data.data?.order?._id || null);
+      clearCart();
+      setDone(true);
+    } catch (err) {
+      setOrderError(err.response?.data?.message || 'فشل تأكيد الطلب، يرجى المحاولة مرة أخرى');
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (done) {
@@ -46,8 +77,9 @@ export default function CheckoutPage() {
           <CheckCircle className="w-12 h-12 text-white" />
         </motion.div>
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="text-center">
-          <h2 className="text-2xl font-black text-[#0f3460] mb-2">تم تأكيد طلبك! 🎉</h2>
-          <p className="text-gray-500 text-sm">سيصلك رقم الطلب عبر الجوال خلال دقائق</p>
+          <h2 className="text-2xl font-black text-[#0f3460] mb-2">تم تأكيد طلبك!</h2>
+          <p className="text-gray-500 text-sm">سيصلك تأكيد الطلب عبر البريد والجوال</p>
+          {orderId && <p className="text-xs text-gray-400 mt-1 font-mono">{orderId}</p>}
         </motion.div>
         <div className="flex gap-3">
           <button onClick={() => navigate('/orders')}
@@ -264,6 +296,12 @@ export default function CheckoutPage() {
                     <p className="text-gray-600">{form.name} — {form.phone}</p>
                     <p className="text-gray-500">{form.city}، {form.district}، {form.street}</p>
                   </div>
+
+                  {orderError && (
+                    <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm text-center">
+                      {orderError}
+                    </div>
+                  )}
 
                   <div className="flex gap-3">
                     <button onClick={() => setStep(1)}

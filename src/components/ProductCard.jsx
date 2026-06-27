@@ -8,6 +8,13 @@ const ProductCard = ({ product, onAddToCart, onToggleWishlist, index = 0 }) => {
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
+  // Normalize backend vs mock field names
+  const productId = product.id || product._id;
+  const productImage = product.image || product.images?.[0] || null;
+  const isInStock = product.inStock != null
+    ? product.inStock
+    : !(product.isOutOfStock) && (product.stock == null || product.stock > 0);
+
   const handleWishlist = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -43,7 +50,7 @@ const ProductCard = ({ product, onAddToCart, onToggleWishlist, index = 0 }) => {
             خصم {product.discount}%
           </span>
         )}
-        {!product.inStock && (
+        {!isInStock && (
           <span className="px-3 py-1 bg-gray-700 text-white text-xs font-bold rounded-full shadow-md">
             نفذت الكمية
           </span>
@@ -63,10 +70,10 @@ const ProductCard = ({ product, onAddToCart, onToggleWishlist, index = 0 }) => {
         />
       </motion.button>
 
-      <Link to={`/product/${product.id}`} className="block">
+      <Link to={`/product/${productId}`} className="block">
         <div className="relative aspect-square bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
           <motion.img
-            src={product.image}
+            src={productImage}
             alt={product.name}
             className="w-full h-full object-cover"
             animate={{ scale: isHovered ? 1.08 : 1 }}
@@ -91,7 +98,7 @@ const ProductCard = ({ product, onAddToCart, onToggleWishlist, index = 0 }) => {
       <div className="p-4 space-y-2">
         <p className="text-xs text-gray-500 font-medium">{product.brand}</p>
 
-        <Link to={`/product/${product.id}`}>
+        <Link to={`/product/${productId}`}>
           <h3 className="text-sm font-semibold text-[#1B3D6F] line-clamp-2 min-h-[2.5rem] hover:text-[#1FB5C9] transition-colors">
             {product.name}
           </h3>
@@ -111,7 +118,7 @@ const ProductCard = ({ product, onAddToCart, onToggleWishlist, index = 0 }) => {
             ))}
           </div>
           <span className="text-xs text-gray-500">
-            ({product.reviewCount.toLocaleString('ar-SA')})
+            ({(product.reviewCount || 0).toLocaleString('ar-SA')})
           </span>
         </div>
 
@@ -130,11 +137,11 @@ const ProductCard = ({ product, onAddToCart, onToggleWishlist, index = 0 }) => {
         <motion.button
           whileTap={{ scale: 0.97 }}
           onClick={handleAddToCart}
-          disabled={!product.inStock}
+          disabled={!isInStock}
           className="w-full mt-3 py-2.5 rounded-xl bg-gradient-to-r from-[#1FB5C9] to-[#1B3D6F] text-white text-sm font-semibold flex items-center justify-center gap-2 shadow-md hover:shadow-lg disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed transition-all"
         >
           <ShoppingCart className="w-4 h-4" />
-          {product.inStock ? 'أضف للسلة' : 'غير متوفّر'}
+          {isInStock ? 'أضف للسلة' : 'غير متوفّر'}
         </motion.button>
       </div>
     </motion.div>

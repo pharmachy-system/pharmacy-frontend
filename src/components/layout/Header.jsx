@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import {
   Search, ShoppingCart, Heart, User, Menu, X,
   MapPin, Phone, ChevronDown, Pill, LogOut,
-  Home, Package, Truck, Clock, Bell, UserPlus,
+  Home, Package, Truck, Clock, Bell, UserPlus, LayoutDashboard,
 } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
@@ -229,6 +229,7 @@ export default function Header() {
                         <p className="text-xs text-gray-400 truncate">{user.email}</p>
                       </div>
                       {[
+                        ...(user.role === 'admin' ? [{ to: '/admin', icon: LayoutDashboard, label: 'لوحة التحكم' }] : []),
                         { to: '/profile', icon: User, label: 'ملفي' },
                         { to: '/orders', icon: Package, label: 'طلباتي' },
                         { to: '/favorites', icon: Heart, label: 'المفضلة' },

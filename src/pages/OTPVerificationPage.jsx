@@ -12,6 +12,7 @@ export default function OTPVerificationPage() {
   const location = useLocation();
   const email = location.state?.email;
   const phone = location.state?.phone;
+  const devOtp = location.state?.devOtp;
 
   const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
@@ -78,6 +79,14 @@ export default function OTPVerificationPage() {
                     </p>
                   )}
                 </div>
+
+                {devOtp && (
+                  <div className="mb-4 p-3 rounded-xl bg-amber-50 border border-amber-300 text-amber-800 text-sm text-center">
+                    <span className="font-bold">DEV MODE — </span>
+                    رمز التحقق:{' '}
+                    <span className="font-mono font-black tracking-widest text-base">{devOtp}</span>
+                  </div>
+                )}
 
                 {error && (
                   <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">

@@ -27,7 +27,13 @@ export default function ProductDetailPage() {
       if (res.success) {
         setProduct(res.product);
         const all = await getAllProducts();
-        if (all.success) setRelated(all.products.filter(p => p.category === res.product.category && p.id !== id).slice(0,4));
+        if (all.success) {
+          const cat = res.product.category;
+          const filtered = cat
+            ? all.products.filter(p => p.category === cat && (p.id || p._id) !== id)
+            : all.products.filter(p => (p.id || p._id) !== id);
+          setRelated(filtered.slice(0, 4));
+        }
       } else navigate("/products");
       setLoading(false);
     };
@@ -35,13 +41,19 @@ export default function ProductDetailPage() {
   }, [id]);
 
   const handleAddToCart = () => {
-    addToCart(product, qty);
+    addToCart({ ...product, price: effectivePrice }, qty);
     toast(product.name + " أضيف للسلة", "success");
     setAddedAnim(true);
     setTimeout(() => setAddedAnim(false), 1200);
   };
 
-  const disc = product && product.oldPrice ? Math.round((1 - product.price / product.oldPrice) * 100) : null;
+  // Normalize backend field names
+  const effectivePrice = product ? (product.finalPrice ?? product.price) : 0;
+  const oldPrice = product?.oldPrice || (product?.salePrice > 0 && product.salePrice !== product.price ? product.price : null);
+  const isInStock = product
+    ? (product.inStock != null ? product.inStock : !product.isOutOfStock && product.stock > 0)
+    : false;
+  const disc = product && oldPrice ? Math.round((1 - effectivePrice / oldPrice) * 100) : null;
 
   if (loading) return (
     <div className="min-h-screen bg-gradient-to-br from-white via-cyan-50/30 to-blue-50/20 pt-6" dir="rtl">
@@ -61,7 +73,7 @@ export default function ProductDetailPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
           <motion.div initial={{opacity:0,x:-20}} animate={{opacity:1,x:0}} className="relative">
             <div className="rounded-3xl overflow-hidden aspect-square flex items-center justify-center relative" style={{background: product.color || "#1FB5C9"}}>
-              {disc && <span className="absolute top-4 right-4 bg-red-500 text-white text-sm font-bold px-3 py-1 rounded-full">{disc}% خصم</span>}
+              {disc > 0 && <span className="absolute top-4 right-4 bg-red-500 text-white text-sm font-bold px-3 py-1 rounded-full">{disc}% خصم</span>}
               {product.isNew && <span className="absolute top-4 left-4 bg-emerald-500 text-white text-sm font-bold px-3 py-1 rounded-full">جديد</span>}
               <div className="text-center p-8">
                 <p className="text-white/60 text-sm mb-2">{product.brand}</p>
@@ -80,14 +92,14 @@ export default function ProductDetailPage() {
               <span className="text-sm text-gray-500">{product.rating} ({(product.reviewCount||0).toLocaleString()})</span>
             </div>
             <div className="flex items-baseline gap-3">
-              <span className="text-3xl font-bold text-blue-900">{product.price} ر.س</span>
-              {product.oldPrice && <span className="text-gray-400 line-through">{product.oldPrice} ر.س</span>}
+              <span className="text-3xl font-bold text-blue-900">{effectivePrice} ر.س</span>
+              {oldPrice && <span className="text-gray-400 line-through">{oldPrice} ر.س</span>}
             </div>
-            <div className={(product.inStock ? "text-emerald-600" : "text-red-500") + " flex items-center gap-2 text-sm font-medium"}>
-              {product.inStock ? <><CheckCircle className="w-4 h-4" />متوفر</> : <><AlertCircle className="w-4 h-4" />غير متوفر</>}
+            <div className={(isInStock ? "text-emerald-600" : "text-red-500") + " flex items-center gap-2 text-sm font-medium"}>
+              {isInStock ? <><CheckCircle className="w-4 h-4" />متوفر</> : <><AlertCircle className="w-4 h-4" />غير متوفر</>}
             </div>
             <p className="text-gray-600 text-sm leading-relaxed">{product.description}</p>
-            {product.inStock && (
+            {isInStock && (
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-2 bg-gray-100 rounded-2xl px-3 py-2">
                   <button onClick={() => setQty(q => Math.max(1,q-1))} className="w-8 h-8 rounded-xl hover:bg-white flex items-center justify-center"><Minus className="w-4 h-4 text-blue-900" /></button>
@@ -133,7 +145,7 @@ export default function ProductDetailPage() {
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {related.map(p => (
-                <Link key={p.id} to={"/product/"+p.id} className="rounded-2xl overflow-hidden border border-gray-100 hover:shadow-lg transition-shadow block">
+                <Link key={p.id || p._id} to={"/product/"+(p.id || p._id)} className="rounded-2xl overflow-hidden border border-gray-100 hover:shadow-lg transition-shadow block">
                   <div className="h-24 flex items-center justify-center text-white font-bold text-sm" style={{background:p.color||"#1FB5C9"}}>{p.nameEn||p.name}</div>
                   <div className="p-3"><p className="text-xs text-gray-600 truncate">{p.name}</p><p className="text-blue-900 font-bold text-sm">{p.price} ر.س</p></div>
                 </Link>

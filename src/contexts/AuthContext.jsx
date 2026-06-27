@@ -44,7 +44,7 @@ export function AuthProvider({ children }) {
     try {
       const auth = await authApi.register({ name, email, password, phone });
       setUser(auth.user);
-      return { success: true, user: auth.user };
+      return { success: true, user: auth.user, devOtp: auth.devOtp };
     } catch (err) {
       const msg = err.response?.data?.message || err.message || 'فشل التسجيل';
       setError(msg);

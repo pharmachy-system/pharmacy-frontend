@@ -11,6 +11,7 @@ const extractAuthData = (response) => {
     user: data.user || data,
     accessToken: data.accessToken || data.token,
     refreshToken: data.refreshToken,
+    devOtp: data.devOtp,
   };
 };
 

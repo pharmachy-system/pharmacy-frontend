@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   LayoutDashboard, Package, ShoppingCart, Users, DollarSign,
   TrendingUp, TrendingDown, AlertCircle, Clock, ArrowUpRight,
-  ArrowDownRight, MoreVertical
+  ArrowDownRight, MoreVertical, Loader2
 } from 'lucide-react';
+import { getDashboardStats, getRecentOrders, getLowStockAlerts } from '../api/admin';
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState({
@@ -17,6 +19,45 @@ const AdminDashboard = () => {
   });
   const [recentOrders, setRecentOrders] = useState([]);
   const [lowStockItems, setLowStockItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const [statsRes, ordersRes, stockRes] = await Promise.allSettled([
+          getDashboardStats(),
+          getRecentOrders(),
+          getLowStockAlerts(),
+        ]);
+
+        if (statsRes.status === 'fulfilled') {
+          const d = statsRes.value?.data || statsRes.value;
+          const s = d.stats || d;
+          setStats({
+            totalRevenue:   s.revenue?.total   ?? s.totalRevenue   ?? 0,
+            totalOrders:    s.orders?.total    ?? s.totalOrders    ?? 0,
+            totalProducts:  s.medicines?.total ?? s.totalProducts  ?? 0,
+            totalCustomers: s.users?.total     ?? s.totalCustomers ?? 0,
+            revenueChange:  s.revenue?.growth  ?? s.revenueChange  ?? 0,
+            ordersChange:   0,
+          });
+        }
+        if (ordersRes.status === 'fulfilled') {
+          const d = ordersRes.value?.data || ordersRes.value;
+          setRecentOrders(d.orders ?? d ?? []);
+        }
+        if (stockRes.status === 'fulfilled') {
+          const d = stockRes.value?.data || stockRes.value;
+          setLowStockItems((d.medicines ?? d ?? []).slice(0, 10));
+        }
+      } catch (_) {
+        // partial failure — already handled per-promise above
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, []);
 
   const statCards = [
     {
@@ -63,6 +104,14 @@ const AdminDashboard = () => {
         return 'bg-gray-50 text-gray-600 border-gray-200';
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-cyan-500" />
+      </div>
+    );
+  }
 
   return (
     <div dir="ltr" className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
@@ -126,9 +175,9 @@ const AdminDashboard = () => {
           >
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-lg font-semibold text-gray-800">Recent Orders</h2>
-              <button className="text-sm font-medium text-cyan-600 hover:text-cyan-700">
+              <Link to="/orders" className="text-sm font-medium text-cyan-600 hover:text-cyan-700">
                 View All
-              </button>
+              </Link>
             </div>
 
             {recentOrders.length === 0 ? (
@@ -141,23 +190,28 @@ const AdminDashboard = () => {
             ) : (
               <div className="space-y-3">
                 {recentOrders.map((order) => (
-                  <div key={order.id} className="flex items-center justify-between p-3 rounded-xl hover:bg-gray-50 transition-colors">
+                  <Link key={order._id || order.id} to={`/orders/${order._id || order.id}`}
+                    className="flex items-center justify-between p-3 rounded-xl hover:bg-gray-50 transition-colors">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
                         <ShoppingCart className="w-4 h-4 text-gray-400" />
                       </div>
                       <div>
-                        <p className="font-medium text-gray-800 text-sm">#{order.orderId}</p>
-                        <p className="text-xs text-gray-500">{order.customerName}</p>
+                        <p className="font-medium text-gray-800 text-sm">
+                          #{order.orderNumber || (order._id || order.id)?.slice(-8).toUpperCase()}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {order.user?.name || order.customerName || '—'}
+                        </p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="font-semibold text-gray-800 text-sm">{order.total} SAR</p>
+                      <p className="font-semibold text-gray-800 text-sm">{Number(order.total || 0).toFixed(2)} SAR</p>
                       <span className={`inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(order.status)}`}>
                         {order.status}
                       </span>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             )}
@@ -185,14 +239,16 @@ const AdminDashboard = () => {
             ) : (
               <div className="space-y-3">
                 {lowStockItems.map((item) => (
-                  <div key={item.id} className="flex items-center justify-between p-3 rounded-xl bg-amber-50/50 border border-amber-100">
+                  <div key={item._id || item.id} className="flex items-center justify-between p-3 rounded-xl bg-amber-50/50 border border-amber-100">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center border border-amber-200">
-                        <Package className="w-4 h-4 text-amber-500" />
+                      <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center border border-amber-200 overflow-hidden">
+                        {item.images?.[0] || item.image
+                          ? <img src={item.images?.[0] || item.image} alt="" className="w-full h-full object-cover" />
+                          : <Package className="w-4 h-4 text-amber-500" />}
                       </div>
                       <div>
                         <p className="font-medium text-gray-800 text-sm">{item.name}</p>
-                        <p className="text-xs text-amber-600">{item.stock} units left</p>
+                        <p className="text-xs text-amber-600">{item.stock ?? item.stockQuantity ?? 0} units left</p>
                       </div>
                     </div>
                     <MoreVertical className="w-4 h-4 text-gray-400" />

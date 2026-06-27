@@ -74,7 +74,7 @@ export default function RegisterPage() {
     setLoading(false);
 
     if (result.success) {
-      navigate('/verify-otp', { state: { email: form.email, phone: form.phone } });
+      navigate('/verify-otp', { state: { email: form.email, phone: form.phone, devOtp: result.devOtp } });
     } else {
       setError(result.error);
     }

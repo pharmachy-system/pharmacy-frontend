@@ -8,7 +8,7 @@ const API = axios.create({
 // Request interceptor to add authorization header
 API.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem('ansar_access_token')
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
@@ -26,7 +26,9 @@ API.interceptors.response.use(
   },
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('token')
+      localStorage.removeItem('ansar_access_token')
+      localStorage.removeItem('ansar_refresh_token')
+      localStorage.removeItem('ansar_user')
       window.location.href = '/login'
     }
     return Promise.reject(error)

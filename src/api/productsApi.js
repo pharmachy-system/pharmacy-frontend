@@ -1,4 +1,4 @@
-import axiosClient from './axios';
+import axiosClient from '../utils/axiosClient';
 import {
   mockProducts,
   CATEGORIES,
@@ -20,10 +20,11 @@ export const getAllProducts = async (filters = {}) => {
     if (filters.inStock) params.append('inStock', 'true');
 
     const { data } = await axiosClient.get(`/medicines?${params.toString()}`);
+    const products = data.medicines || data.products || data.data || [];
     return {
       success: true,
-      products: data.products || data.data || data,
-      total: data.total || (data.products?.length ?? 0),
+      products,
+      total: data.total || data.pagination?.total || data.pagination?.totalItems || products.length,
       source: 'backend',
     };
   } catch (error) {
@@ -36,7 +37,7 @@ export const getAllProducts = async (filters = {}) => {
 export const getProductById = async (id) => {
   try {
     const { data } = await axiosClient.get(`/medicines/${id}`);
-    return { success: true, product: data.product || data, source: 'backend' };
+    return { success: true, product: data.medicine || data.product || data, source: 'backend' };
   } catch (error) {
     if (USE_MOCK_FALLBACK) {
       const product = getMockById(id);
