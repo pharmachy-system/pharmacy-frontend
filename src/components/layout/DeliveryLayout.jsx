@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom';
-import { LayoutDashboard, Package, MapPin, LogOut, Truck } from 'lucide-react';
+import { LayoutDashboard, Package, LogOut, Truck } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import LanguageSwitcher from '../shared/LanguageSwitcher';
 

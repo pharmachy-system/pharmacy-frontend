@@ -2,8 +2,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import {
   Search, ShoppingCart, Heart, User, Menu, X,
-  MapPin, Phone, ChevronDown, Pill, LogOut,
-  Home, Package, Truck, Clock, Bell, UserPlus, LayoutDashboard,
+  Phone, ChevronDown, Pill, LogOut,
+  Home, Package, Bell, UserPlus, LayoutDashboard,
 } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';

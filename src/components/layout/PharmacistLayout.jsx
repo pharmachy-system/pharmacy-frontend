@@ -1,10 +1,9 @@
-import { NavLink, Outlet, Link } from 'react-router-dom';
+import { NavLink, Outlet } from 'react-router-dom';
 import {
   LayoutDashboard, ClipboardList, ShoppingBag,
-  Boxes, ChevronRight, Pill, Bell, LogOut,
+  Boxes, ChevronRight, Pill, LogOut,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import { useNotifications } from '../../contexts/NotificationContext';
 import LanguageSwitcher from '../shared/LanguageSwitcher';
 
 const NAV = [
@@ -16,7 +15,6 @@ const NAV = [
 
 export default function PharmacistLayout() {
   const { user, logout } = useAuth();
-  const { unreadCount } = useNotifications();
 
   return (
     <div className="flex min-h-screen bg-gray-50" dir="rtl">

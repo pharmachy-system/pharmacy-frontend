@@ -54,8 +54,7 @@ export default function LoginPage() {
   const [phoneOtp, setPhoneOtp] = useState('');
   const [countdown, setCountdown] = useState(0);
 
-  // PIN state
-  const [pin, setPin] = useState('');
+  const [, setPin] = useState(''); // pin value read by onComplete callback, not directly
 
   // ============ Email Login ============
   const handleEmailLogin = async (e) => {

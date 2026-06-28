@@ -113,7 +113,7 @@ export default function DrugInteractionChecker() {
       const clean = text.replace(/```json|```/g, "").trim();
       const parsed = JSON.parse(clean);
       setResult(parsed);
-    } catch (e) {
+    } catch {
       setError("حدث خطأ أثناء الفحص، حاول مجدداً");
     } finally {
       setLoading(false);

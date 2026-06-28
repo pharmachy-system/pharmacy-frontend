@@ -53,7 +53,7 @@ export default function ProfileEditPage() {
         setLoading(false);
       }
     })();
-  }, [authUser]);
+  }, [authUser]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 

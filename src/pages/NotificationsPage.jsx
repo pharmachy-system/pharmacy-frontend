@@ -21,7 +21,7 @@ export default function NotificationsPage() {
   const { notifications, loading, fetchNotifications, markRead, markAllRead, deleteNotification, clearAll } = useNotifications();
   const [filter, setFilter] = useState('all');
 
-  useEffect(() => { fetchNotifications(); }, []);
+  useEffect(() => { fetchNotifications(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const filtered = notifications.filter(n => {
     if (filter === 'all')    return true;
@@ -33,9 +33,10 @@ export default function NotificationsPage() {
 
   const unread = notifications.filter(n => !n.read).length;
 
-  const fmtTime = iso => {
+  const fmtTime = (iso) => {
     if (!iso) return '';
-    const diff = (Date.now() - new Date(iso)) / 1000;
+    const now = new Date();
+    const diff = (now - new Date(iso)) / 1000;
     if (diff < 60)    return 'الآن';
     if (diff < 3600)  return `${Math.floor(diff/60)} دقيقة`;
     if (diff < 86400) return `${Math.floor(diff/3600)} ساعة`;

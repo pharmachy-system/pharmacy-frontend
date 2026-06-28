@@ -11,7 +11,6 @@ export default function OTPVerificationPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const email = location.state?.email;
-  const phone = location.state?.phone;
   const devOtp = location.state?.devOtp;
 
   const [otp, setOtp] = useState('');

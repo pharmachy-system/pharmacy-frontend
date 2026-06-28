@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, ShoppingCart, Trash2, Package, Loader2, XCircle, ArrowLeft } from 'lucide-react';
+import { Heart, ShoppingCart, Trash2, Package, Loader2, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useCart } from '../contexts/CartContext';
 import { toast } from 'sonner';
@@ -16,11 +16,6 @@ export default function WishlistPage() {
   const [movingId,   setMovingId]   = useState(null);
   const [removingId, setRemovingId] = useState(null);
 
-  useEffect(() => {
-    if (!user) { navigate('/login', { state: { from: { pathname: '/favorites' } } }); return; }
-    fetchWishlist();
-  }, [user]);
-
   const fetchWishlist = async () => {
     setLoading(true);
     try {
@@ -29,6 +24,11 @@ export default function WishlistPage() {
     } catch { toast.error('فشل تحميل المفضلة'); }
     finally { setLoading(false); }
   };
+
+  useEffect(() => {
+    if (!user) { navigate('/login', { state: { from: { pathname: '/favorites' } } }); return; }
+    fetchWishlist();
+  }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleRemove = async (medicineId) => {
     setRemovingId(medicineId);

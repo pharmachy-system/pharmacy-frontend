@@ -4,7 +4,7 @@ import { Heart, ShoppingCart, Star, Eye } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
 
-const ProductCard = ({ product, onAddToCart, onToggleWishlist, index = 0 }) => {
+const ProductCard = ({ product, onToggleWishlist, index = 0 }) => {
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 

@@ -1,4 +1,3 @@
-import React from 'react';
 
 const products = [
   { name: "Brufen 400mg", price: "12 SAR", badge: "Best Seller" },

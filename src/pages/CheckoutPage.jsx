@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CheckCircle, CreditCard, Truck, MapPin, User, Phone, ChevronDown, Lock } from 'lucide-react';
+import { CheckCircle, CreditCard, Truck, MapPin, User, Phone, Lock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -24,7 +24,7 @@ export default function CheckoutPage() {
     } else if (cartItems.length === 0) {
       navigate('/cart');
     }
-  }, [user, cartItems.length]);
+  }, [user, cartItems.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const totalPrice = getTotalPrice();
   const shipping = totalPrice >= 200 ? 0 : 25;

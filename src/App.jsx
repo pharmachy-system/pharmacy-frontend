@@ -7,6 +7,8 @@ import { AuthProvider } from './contexts/AuthContext'
 import { CartProvider } from './contexts/CartContext'
 import { NotificationProvider } from './contexts/NotificationContext'
 import { LanguageProvider } from './contexts/LanguageContext'
+import { ThemeProvider } from './contexts/ThemeContext'
+import { FeatureFlagProvider } from './contexts/FeatureFlagContext'
 
 // Layouts (small, load eagerly)
 import Header from './components/layout/Header'
@@ -133,6 +135,8 @@ function StoreLayout() {
 function App() {
   return (
     <Router>
+      <ThemeProvider>
+      <FeatureFlagProvider>
       <LanguageProvider>
         <AuthProvider>
           <CartProvider>
@@ -251,6 +255,8 @@ function App() {
           </CartProvider>
         </AuthProvider>
       </LanguageProvider>
+      </FeatureFlagProvider>
+      </ThemeProvider>
     </Router>
   )
 }

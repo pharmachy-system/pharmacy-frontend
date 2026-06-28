@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingCart, Heart, Shield, Truck, Award, Star, Plus, Minus, ArrowRight, CheckCircle, AlertCircle, Package } from "lucide-react";
+import { ShoppingCart, Heart, Star, Plus, Minus, ArrowRight, CheckCircle, AlertCircle, Package } from "lucide-react";
 import { useCart } from "../contexts/CartContext";
 import { useToast } from "../components/ui/Toast";
 import { ProductDetailSkeleton } from "../components/ui/Skeleton";
@@ -38,7 +38,7 @@ export default function ProductDetailPage() {
       setLoading(false);
     };
     load();
-  }, [id]);
+  }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleAddToCart = () => {
     addToCart({ ...product, price: effectivePrice }, qty);
