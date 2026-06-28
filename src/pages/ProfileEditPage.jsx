@@ -78,43 +78,41 @@ export default function ProfileEditPage() {
     }
   };
 
-  const inputClass = "w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-[#1FB5C9] focus:ring-2 focus:ring-[rgba(31,181,201,0.1)] transition-all";
+  const inputClass = "w-full px-4 py-2.5 rounded-xl border-2 border-gray-200 text-sm outline-none focus:border-pharmacy-cyan focus:ring-4 focus:ring-pharmacy-cyan/10 transition-all";
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center" dir="rtl">
-      <Loader2 className="w-8 h-8 animate-spin text-[#1FB5C9]" />
+      <Loader2 className="w-8 h-8 animate-spin text-pharmacy-cyan" />
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-[#f7f9fc]" dir="rtl">
-      <div className="max-w-2xl mx-auto px-4 py-6">
+    <div className="min-h-screen bg-gradient-to-br from-white via-cyan-50/20 to-blue-50/10" dir="rtl">
+      <div className="max-w-2xl mx-auto px-4 py-8">
 
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}
-          className="flex items-center gap-3 mb-6">
+          className="flex items-center gap-3 mb-8">
           <button onClick={() => navigate(-1)}
-            className="p-2 rounded-xl bg-white border border-gray-200 hover:bg-gray-50">
+            className="p-2 rounded-xl bg-white border border-gray-200 hover:bg-gray-50 shadow-sm">
             <ArrowRight className="w-5 h-5 text-gray-600 rotate-180" />
           </button>
-          <h1 className="text-xl font-black text-[#0f3460]">تعديل الملف الشخصي</h1>
+          <h1 className="text-xl font-black text-pharmacy-blue">تعديل الملف الشخصي</h1>
         </motion.div>
 
         {/* Avatar */}
         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }}
-          className="flex flex-col items-center mb-6">
-          <div className="w-24 h-24 rounded-full flex items-center justify-center shadow-lg"
-            style={{ background: "linear-gradient(135deg,#0f3460,#1FB5C9)" }}>
-            <User className="w-10 h-10 text-white" />
+          className="flex flex-col items-center mb-8">
+          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-pharmacy-cyan to-pharmacy-blue flex items-center justify-center shadow-xl shadow-pharmacy-cyan/25">
+            <User className="w-11 h-11 text-white" />
           </div>
-          <p className="text-xs text-gray-400 mt-2">{form.name || authUser?.name}</p>
+          <p className="text-sm font-bold text-pharmacy-blue mt-3">{form.name || authUser?.name}</p>
           <p className="text-xs text-gray-400">{authUser?.email}</p>
         </motion.div>
 
         {/* Form */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-          className="bg-white rounded-2xl border border-gray-100 p-5 space-y-4 mb-5"
-          style={{ boxShadow: "0 2px 16px rgba(15,52,96,0.07)" }}>
+          className="bg-white/80 backdrop-blur-sm rounded-3xl border border-white/60 p-6 space-y-5 mb-5 shadow-xl shadow-cyan-100/30">
 
           {/* Name */}
           <div>
@@ -159,7 +157,7 @@ export default function ProfileEditPage() {
                 <button key={val} onClick={() => set("gender", form.gender === val ? "" : val)}
                   className={"flex-1 py-2.5 rounded-xl border-2 text-sm font-bold transition-all " +
                     (form.gender === val
-                      ? "border-[#1FB5C9] bg-[rgba(31,181,201,0.06)] text-[#0f3460]"
+                      ? "border-pharmacy-cyan bg-pharmacy-cyan/5 text-pharmacy-blue"
                       : "border-gray-200 text-gray-400 hover:border-gray-300")}>
                   {label}
                 </button>
@@ -199,9 +197,9 @@ export default function ProfileEditPage() {
         {/* Save Button */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
           <button onClick={handleSave} disabled={saving || saved}
-            className={"w-full py-3 rounded-xl font-black text-sm text-white flex items-center justify-center gap-2 transition-all disabled:opacity-70 " +
-              (saved ? "bg-green-500" : "")}
-            style={!saved ? { background: "linear-gradient(135deg,#0f3460,#1FB5C9)", boxShadow: "0 4px 14px rgba(31,181,201,0.3)" } : {}}>
+            className={`w-full py-3.5 rounded-2xl font-black text-sm text-white flex items-center justify-center gap-2 transition-all disabled:opacity-70 shadow-lg ${
+              saved ? "bg-emerald-500 shadow-emerald-200" : "bg-gradient-to-l from-pharmacy-cyan to-pharmacy-blue shadow-pharmacy-cyan/25 hover:-translate-y-0.5"
+            }`}>
             {saving
               ? <><Loader2 className="w-4 h-4 animate-spin" />جاري الحفظ...</>
               : saved

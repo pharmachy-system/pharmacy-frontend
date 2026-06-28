@@ -71,24 +71,22 @@ export default function CheckoutPage() {
         <motion.div
           initial={{ scale: 0 }} animate={{ scale: 1 }}
           transition={{ type: 'spring', stiffness: 200 }}
-          className="w-24 h-24 rounded-full flex items-center justify-center"
-          style={{ background: 'linear-gradient(135deg,#0f3460,#1FB5C9)', boxShadow: '0 8px 30px rgba(31,181,201,0.4)' }}
+          className="w-24 h-24 rounded-full bg-gradient-to-br from-pharmacy-cyan to-pharmacy-blue flex items-center justify-center shadow-2xl shadow-pharmacy-cyan/30"
         >
           <CheckCircle className="w-12 h-12 text-white" />
         </motion.div>
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="text-center">
-          <h2 className="text-2xl font-black text-[#0f3460] mb-2">تم تأكيد طلبك!</h2>
+          <h2 className="text-2xl font-black text-pharmacy-blue mb-2">تم تأكيد طلبك!</h2>
           <p className="text-gray-500 text-sm">سيصلك تأكيد الطلب عبر البريد والجوال</p>
-          {orderId && <p className="text-xs text-gray-400 mt-1 font-mono">{orderId}</p>}
+          {orderId && <p className="text-xs text-gray-400 mt-1 font-mono">#{orderId.slice(-10).toUpperCase()}</p>}
         </motion.div>
         <div className="flex gap-3">
           <button onClick={() => navigate('/orders')}
-            className="px-6 py-2.5 rounded-xl text-white font-bold text-sm"
-            style={{ background: 'linear-gradient(135deg,#0f3460,#1FB5C9)', boxShadow: '0 4px 14px rgba(31,181,201,0.3)' }}>
+            className="px-6 py-3 rounded-2xl text-white font-bold text-sm bg-gradient-to-l from-pharmacy-cyan to-pharmacy-blue shadow-lg shadow-pharmacy-cyan/25 hover:-translate-y-0.5 transition-all">
             متابعة طلباتي
           </button>
           <button onClick={() => navigate('/products')}
-            className="px-6 py-2.5 rounded-xl font-bold text-sm text-[#0f3460] border-2 border-[#0f3460] hover:bg-[#0f3460] hover:text-white transition-all">
+            className="px-6 py-3 rounded-2xl font-bold text-sm text-pharmacy-blue border-2 border-pharmacy-blue/30 hover:bg-pharmacy-blue hover:text-white transition-all">
             متابعة التسوق
           </button>
         </div>
@@ -97,7 +95,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f7f9fc] py-8" dir="rtl">
+    <div className="min-h-screen bg-gradient-to-br from-white via-cyan-50/20 to-blue-50/10 py-8" dir="rtl">
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
 
         {/* Steps */}
@@ -105,19 +103,19 @@ export default function CheckoutPage() {
           {STEPS.map((s, i) => (
             <div key={i} className="flex items-center">
               <div className="flex flex-col items-center gap-1">
-                <div
-                  className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-black transition-all duration-300"
-                  style={i <= step
-                    ? { background: 'linear-gradient(135deg,#0f3460,#1FB5C9)', color: 'white', boxShadow: '0 3px 10px rgba(31,181,201,0.35)' }
-                    : { background: '#f0f4f8', color: '#b0bec5' }}
-                >
+                <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-black transition-all duration-300 ${
+                  i <= step
+                    ? 'bg-gradient-to-br from-pharmacy-cyan to-pharmacy-blue text-white shadow-md shadow-pharmacy-cyan/30'
+                    : 'bg-gray-100 text-gray-400'
+                }`}>
                   {i < step ? <CheckCircle className="w-5 h-5" /> : i + 1}
                 </div>
-                <span className={`text-[11px] font-semibold whitespace-nowrap ${i <= step ? 'text-[#0f3460]' : 'text-gray-400'}`}>{s}</span>
+                <span className={`text-[11px] font-semibold whitespace-nowrap ${i <= step ? 'text-pharmacy-blue' : 'text-gray-400'}`}>{s}</span>
               </div>
               {i < STEPS.length - 1 && (
-                <div className="w-16 sm:w-24 h-0.5 mx-2 mb-4 rounded-full transition-all duration-300"
-                  style={{ background: i < step ? 'linear-gradient(90deg,#0f3460,#1FB5C9)' : '#e8eef5' }} />
+                <div className={`w-16 sm:w-24 h-0.5 mx-2 mb-4 rounded-full transition-all duration-300 ${
+                  i < step ? 'bg-gradient-to-r from-pharmacy-blue to-pharmacy-cyan' : 'bg-gray-100'
+                }`} />
               )}
             </div>
           ))}
@@ -132,12 +130,12 @@ export default function CheckoutPage() {
               {/* STEP 0 - Delivery */}
               {step === 0 && (
                 <motion.div key="step0" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
-                  className="bg-white rounded-2xl p-6" style={{ boxShadow: '0 2px 20px rgba(15,52,96,0.07)' }}>
+                  className="bg-white rounded-2xl p-6 shadow-lg shadow-blue-900/5">
                   <div className="flex items-center gap-2 mb-5">
-                    <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'rgba(31,181,201,0.1)' }}>
-                      <Truck className="w-4 h-4 text-[#1FB5C9]" />
+                    <div className="w-8 h-8 rounded-lg bg-pharmacy-cyan/10 flex items-center justify-center">
+                      <Truck className="w-4 h-4 text-pharmacy-cyan" />
                     </div>
-                    <h2 className="text-base font-black text-[#0f3460]">معلومات التوصيل</h2>
+                    <h2 className="text-base font-black text-pharmacy-blue">معلومات التوصيل</h2>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -154,7 +152,7 @@ export default function CheckoutPage() {
                           <input
                             value={form[key]} onChange={e => set(key, e.target.value)}
                             placeholder={placeholder}
-                            className="w-full pr-9 pl-4 py-2.5 rounded-xl text-sm border border-gray-200 outline-none focus:border-[#1FB5C9] focus:ring-2 focus:ring-[rgba(31,181,201,0.1)] transition-all"
+                            className="w-full pr-9 pl-4 py-2.5 rounded-xl text-sm border border-gray-200 outline-none focus:border-pharmacy-cyan focus:ring-2 focus:ring-pharmacy-cyan/10 transition-all"
                             style={{ fontFamily: 'inherit' }}
                           />
                         </div>
@@ -164,7 +162,7 @@ export default function CheckoutPage() {
                       <label className="block text-xs font-bold text-gray-600 mb-1.5">الشارع والعنوان التفصيلي</label>
                       <input value={form.street} onChange={e => set('street', e.target.value)}
                         placeholder="شارع الملك فهد، مبنى 12، شقة 3"
-                        className="w-full px-4 py-2.5 rounded-xl text-sm border border-gray-200 outline-none focus:border-[#1FB5C9] focus:ring-2 focus:ring-[rgba(31,181,201,0.1)] transition-all"
+                        className="w-full px-4 py-2.5 rounded-xl text-sm border border-gray-200 outline-none focus:border-pharmacy-cyan focus:ring-2 focus:ring-pharmacy-cyan/10 transition-all"
                         style={{ fontFamily: 'inherit' }} />
                     </div>
                     <div className="sm:col-span-2">
@@ -172,15 +170,14 @@ export default function CheckoutPage() {
                       <textarea value={form.notes} onChange={e => set('notes', e.target.value)}
                         placeholder="أي تعليمات خاصة للتوصيل..."
                         rows={2}
-                        className="w-full px-4 py-2.5 rounded-xl text-sm border border-gray-200 outline-none focus:border-[#1FB5C9] transition-all resize-none"
+                        className="w-full px-4 py-2.5 rounded-xl text-sm border border-gray-200 outline-none focus:border-pharmacy-cyan transition-all resize-none"
                         style={{ fontFamily: 'inherit' }} />
                     </div>
                   </div>
 
                   <button onClick={() => setStep(1)}
                     disabled={!form.name || !form.phone || !form.city}
-                    className="w-full mt-6 py-3 rounded-xl text-white font-bold text-sm transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
-                    style={{ background: 'linear-gradient(135deg,#0f3460,#1FB5C9)', boxShadow: '0 4px 14px rgba(31,181,201,0.3)' }}>
+                    className="w-full mt-6 py-3 rounded-xl text-white font-bold text-sm transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-l from-pharmacy-cyan to-pharmacy-blue shadow-lg shadow-pharmacy-cyan/25">
                     التالي: طريقة الدفع →
                   </button>
                 </motion.div>
@@ -189,12 +186,12 @@ export default function CheckoutPage() {
               {/* STEP 1 - Payment */}
               {step === 1 && (
                 <motion.div key="step1" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
-                  className="bg-white rounded-2xl p-6" style={{ boxShadow: '0 2px 20px rgba(15,52,96,0.07)' }}>
+                  className="bg-white rounded-2xl p-6 shadow-lg shadow-blue-900/5">
                   <div className="flex items-center gap-2 mb-5">
-                    <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'rgba(31,181,201,0.1)' }}>
-                      <CreditCard className="w-4 h-4 text-[#1FB5C9]" />
+                    <div className="w-8 h-8 rounded-lg bg-pharmacy-cyan/10 flex items-center justify-center">
+                      <CreditCard className="w-4 h-4 text-pharmacy-cyan" />
                     </div>
-                    <h2 className="text-base font-black text-[#0f3460]">طريقة الدفع</h2>
+                    <h2 className="text-base font-black text-pharmacy-blue">طريقة الدفع</h2>
                   </div>
 
                   {/* Payment options */}
@@ -205,10 +202,11 @@ export default function CheckoutPage() {
                       { id: 'stc', label: 'STC Pay', icon: '📱' },
                     ].map(opt => (
                       <button key={opt.id} onClick={() => set('payMethod', opt.id)}
-                        className="flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all text-sm font-semibold"
-                        style={form.payMethod === opt.id
-                          ? { borderColor: '#1FB5C9', background: 'rgba(31,181,201,0.06)', color: '#0f3460' }
-                          : { borderColor: '#e8eef5', color: '#718096' }}>
+                        className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all text-sm font-semibold ${
+                          form.payMethod === opt.id
+                            ? 'border-pharmacy-cyan bg-pharmacy-cyan/5 text-pharmacy-blue'
+                            : 'border-gray-200 text-gray-500 hover:border-pharmacy-cyan/40'
+                        }`}>
                         <span className="text-xl">{opt.icon}</span>
                         {opt.label}
                       </button>
@@ -222,7 +220,7 @@ export default function CheckoutPage() {
                         <label className="block text-xs font-bold text-gray-600 mb-1.5">رقم البطاقة</label>
                         <input value={form.cardNum} onChange={e => set('cardNum', e.target.value)}
                           placeholder="1234 5678 9012 3456" maxLength={19}
-                          className="w-full px-4 py-2.5 rounded-xl text-sm border border-gray-200 outline-none focus:border-[#1FB5C9] focus:ring-2 focus:ring-[rgba(31,181,201,0.1)] transition-all"
+                          className="w-full px-4 py-2.5 rounded-xl text-sm border border-gray-200 outline-none focus:border-pharmacy-cyan focus:ring-2 focus:ring-pharmacy-cyan/10 transition-all"
                           style={{ fontFamily: 'inherit', direction: 'ltr', textAlign: 'left' }} />
                       </div>
                       <div className="grid grid-cols-2 gap-3">
@@ -230,14 +228,14 @@ export default function CheckoutPage() {
                           <label className="block text-xs font-bold text-gray-600 mb-1.5">تاريخ الانتهاء</label>
                           <input value={form.cardExp} onChange={e => set('cardExp', e.target.value)}
                             placeholder="MM/YY" maxLength={5}
-                            className="w-full px-4 py-2.5 rounded-xl text-sm border border-gray-200 outline-none focus:border-[#1FB5C9] transition-all"
+                            className="w-full px-4 py-2.5 rounded-xl text-sm border border-gray-200 outline-none focus:border-pharmacy-cyan transition-all"
                             style={{ fontFamily: 'inherit', direction: 'ltr', textAlign: 'left' }} />
                         </div>
                         <div>
                           <label className="block text-xs font-bold text-gray-600 mb-1.5">CVV</label>
                           <input value={form.cardCvv} onChange={e => set('cardCvv', e.target.value)}
                             placeholder="123" maxLength={4} type="password"
-                            className="w-full px-4 py-2.5 rounded-xl text-sm border border-gray-200 outline-none focus:border-[#1FB5C9] transition-all"
+                            className="w-full px-4 py-2.5 rounded-xl text-sm border border-gray-200 outline-none focus:border-pharmacy-cyan transition-all"
                             style={{ fontFamily: 'inherit', direction: 'ltr', textAlign: 'left' }} />
                         </div>
                       </div>
@@ -251,12 +249,11 @@ export default function CheckoutPage() {
 
                   <div className="flex gap-3 mt-6">
                     <button onClick={() => setStep(0)}
-                      className="flex-1 py-3 rounded-xl font-bold text-sm border-2 border-gray-200 text-gray-600 hover:border-[#1FB5C9] hover:text-[#1FB5C9] transition-all">
+                      className="flex-1 py-3 rounded-xl font-bold text-sm border-2 border-gray-200 text-gray-600 hover:border-pharmacy-cyan hover:text-pharmacy-cyan transition-all">
                       ← رجوع
                     </button>
                     <button onClick={() => setStep(2)}
-                      className="flex-1 py-3 rounded-xl text-white font-bold text-sm transition-all hover:-translate-y-0.5"
-                      style={{ background: 'linear-gradient(135deg,#0f3460,#1FB5C9)', boxShadow: '0 4px 14px rgba(31,181,201,0.3)' }}>
+                      className="flex-1 py-3 rounded-xl text-white font-bold text-sm transition-all hover:-translate-y-0.5 bg-gradient-to-l from-pharmacy-cyan to-pharmacy-blue shadow-md shadow-pharmacy-cyan/20">
                       التالي: تأكيد الطلب →
                     </button>
                   </div>
@@ -266,12 +263,12 @@ export default function CheckoutPage() {
               {/* STEP 2 - Confirm */}
               {step === 2 && (
                 <motion.div key="step2" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
-                  className="bg-white rounded-2xl p-6" style={{ boxShadow: '0 2px 20px rgba(15,52,96,0.07)' }}>
+                  className="bg-white rounded-2xl p-6 shadow-lg shadow-blue-900/5">
                   <div className="flex items-center gap-2 mb-5">
-                    <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'rgba(31,181,201,0.1)' }}>
-                      <CheckCircle className="w-4 h-4 text-[#1FB5C9]" />
+                    <div className="w-8 h-8 rounded-lg bg-pharmacy-cyan/10 flex items-center justify-center">
+                      <CheckCircle className="w-4 h-4 text-pharmacy-cyan" />
                     </div>
-                    <h2 className="text-base font-black text-[#0f3460]">مراجعة الطلب</h2>
+                    <h2 className="text-base font-black text-pharmacy-blue">مراجعة الطلب</h2>
                   </div>
 
                   {/* Items */}
@@ -282,17 +279,17 @@ export default function CheckoutPage() {
                           {item.image ? <img src={item.image} alt={item.name} className="w-full h-full object-cover" /> : null}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-sm text-[#0f3460] truncate">{item.name}</p>
+                          <p className="font-semibold text-sm text-pharmacy-blue truncate">{item.name}</p>
                           <p className="text-xs text-gray-500">الكمية: {item.quantity}</p>
                         </div>
-                        <p className="font-black text-sm text-[#1FB5C9] flex-shrink-0">{+(item.price * item.quantity).toFixed(2)} ريال</p>
+                        <p className="font-black text-sm text-pharmacy-cyan flex-shrink-0">{+(item.price * item.quantity).toFixed(2)} ريال</p>
                       </div>
                     ))}
                   </div>
 
                   {/* Delivery summary */}
-                  <div className="p-3 rounded-xl mb-5 text-sm" style={{ background: 'rgba(31,181,201,0.05)', border: '1px solid rgba(31,181,201,0.1)' }}>
-                    <p className="font-bold text-[#0f3460] mb-1">عنوان التوصيل</p>
+                  <div className="p-3 rounded-xl mb-5 text-sm bg-pharmacy-cyan/5 border border-pharmacy-cyan/10">
+                    <p className="font-bold text-pharmacy-blue mb-1">عنوان التوصيل</p>
                     <p className="text-gray-600">{form.name} — {form.phone}</p>
                     <p className="text-gray-500">{form.city}، {form.district}، {form.street}</p>
                   </div>
@@ -305,12 +302,11 @@ export default function CheckoutPage() {
 
                   <div className="flex gap-3">
                     <button onClick={() => setStep(1)}
-                      className="flex-1 py-3 rounded-xl font-bold text-sm border-2 border-gray-200 text-gray-600 hover:border-[#1FB5C9] hover:text-[#1FB5C9] transition-all">
+                      className="flex-1 py-3 rounded-xl font-bold text-sm border-2 border-gray-200 text-gray-600 hover:border-pharmacy-cyan hover:text-pharmacy-cyan transition-all">
                       ← رجوع
                     </button>
                     <button onClick={handleOrder} disabled={loading}
-                      className="flex-1 py-3 rounded-xl text-white font-bold text-sm transition-all hover:-translate-y-0.5 disabled:opacity-70"
-                      style={{ background: 'linear-gradient(135deg,#0f3460,#1FB5C9)', boxShadow: '0 4px 14px rgba(31,181,201,0.3)' }}>
+                      className="flex-1 py-3 rounded-xl text-white font-bold text-sm transition-all hover:-translate-y-0.5 disabled:opacity-70 bg-gradient-to-l from-pharmacy-cyan to-pharmacy-blue shadow-md shadow-pharmacy-cyan/20">
                       {loading ? (
                         <span className="flex items-center justify-center gap-2">
                           <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
@@ -329,8 +325,8 @@ export default function CheckoutPage() {
 
           {/* Summary Sidebar */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-2xl p-5 sticky top-24" style={{ boxShadow: '0 2px 16px rgba(15,52,96,0.07)' }}>
-              <h3 className="font-black text-[#0f3460] text-sm mb-4">ملخص الطلب</h3>
+            <div className="bg-white rounded-2xl p-5 sticky top-24 shadow-lg shadow-blue-900/5">
+              <h3 className="font-black text-pharmacy-blue text-sm mb-4">ملخص الطلب</h3>
               <div className="space-y-2.5 text-sm">
                 <div className="flex justify-between text-gray-600">
                   <span>{getTotalItems()} منتج</span>
@@ -347,8 +343,8 @@ export default function CheckoutPage() {
                   <span className="font-semibold">{vat} ريال</span>
                 </div>
                 <div className="flex justify-between pt-3 border-t border-gray-100">
-                  <span className="font-black text-[#0f3460]">الإجمالي</span>
-                  <span className="font-black text-[#1FB5C9]">{grandTotal} ريال</span>
+                  <span className="font-black text-pharmacy-blue">الإجمالي</span>
+                  <span className="font-black text-pharmacy-cyan">{grandTotal} ريال</span>
                 </div>
               </div>
             </div>
