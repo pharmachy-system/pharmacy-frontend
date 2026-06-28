@@ -3,6 +3,7 @@ import {
   AlertTriangle, CheckCircle2, XCircle, Search,
   Plus, X, Zap, Shield, Info, Loader2, ChevronDown
 } from "lucide-react";
+import axiosClient from '../utils/axiosClient';
 
 /* ─── Severity config ─── */
 const SEVERITY = {
@@ -90,29 +91,17 @@ export default function DrugInteractionChecker() {
     setResult(null);
   };
 
-  /* call Claude API */
+  /* call backend AI interactions endpoint */
   const check = async () => {
     if (drugs.length < 2) { setError("أضف دواءين على الأقل للفحص"); return; }
     setLoading(true); setError(""); setResult(null); setExpanded(null);
     try {
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 1000,
-          system: SYSTEM_PROMPT,
-          messages: [{
-            role: "user",
-            content: `Analyze drug interactions for: ${drugs.join(", ")}`
-          }]
-        })
-      });
-      const data = await res.json();
-      const text = data?.content?.[0]?.text || "";
-      const clean = text.replace(/```json|```/g, "").trim();
-      const parsed = JSON.parse(clean);
-      setResult(parsed);
+      const { data } = await axiosClient.post('/ai/interactions', { drugs });
+      if (data.success && data.result) {
+        setResult(data.result);
+      } else {
+        setError("حدث خطأ أثناء الفحص، حاول مجدداً");
+      }
     } catch {
       setError("حدث خطأ أثناء الفحص، حاول مجدداً");
     } finally {

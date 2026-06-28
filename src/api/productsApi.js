@@ -9,7 +9,7 @@ export const getAllProducts = async (filters = {}) => {
     if (filters.minPrice !== undefined) params.append('minPrice', filters.minPrice);
     if (filters.maxPrice !== undefined) params.append('maxPrice', filters.maxPrice);
     if (filters.sort) params.append('sort', filters.sort);
-    if (filters.search) params.append('q', filters.search);
+    if (filters.search) params.append('search', filters.search);
     if (filters.inStock) params.append('inStock', 'true');
 
     const { data } = await axiosClient.get(`/medicines?${params.toString()}`);
@@ -21,8 +21,6 @@ export const getAllProducts = async (filters = {}) => {
       source: 'backend',
     };
   } catch (error) {
-    console.warn('[productsApi] Backend unavailable, using mock:', error.message);
-    if (USE_MOCK_FALLBACK) return applyFiltersToMock(filters);
     return { success: false, products: [], total: 0, error: error.message };
   }
 };

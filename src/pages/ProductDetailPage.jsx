@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingCart, Heart, Star, Plus, Minus, ArrowRight, CheckCircle, AlertCircle, Package } from "lucide-react";
 import { useCart } from "../contexts/CartContext";
-import { useToast } from "../components/ui/Toast";
+import { toast } from "sonner";
 import { ProductDetailSkeleton } from "../components/ui/Skeleton";
 import { getProductById, getAllProducts } from "../api/productsApi";
 
@@ -11,7 +11,6 @@ export default function ProductDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addToCart } = useCart();
-  const toast = useToast();
   const [product, setProduct] = useState(null);
   const [related, setRelated] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -42,7 +41,7 @@ export default function ProductDetailPage() {
 
   const handleAddToCart = () => {
     addToCart({ ...product, price: effectivePrice }, qty);
-    toast(product.name + " أضيف للسلة", "success");
+    toast.success(product.name + " أضيف للسلة");
     setAddedAnim(true);
     setTimeout(() => setAddedAnim(false), 1200);
   };
@@ -80,7 +79,7 @@ export default function ProductDetailPage() {
                 <h2 className="text-white text-3xl font-bold">{product.nameEn || product.name}</h2>
               </div>
             </div>
-            <button onClick={() => { setIsWished(!isWished); toast(isWished ? "حُذف من المفضلة" : "أضيف للمفضلة", "success"); }} className={(isWished ? "bg-red-500 text-white" : "bg-white/90 text-gray-500") + " absolute top-4 left-4 w-10 h-10 rounded-full flex items-center justify-center shadow"}>
+            <button onClick={() => { setIsWished(!isWished); toast.success(isWished ? "حُذف من المفضلة" : "أضيف للمفضلة"); }} className={(isWished ? "bg-red-500 text-white" : "bg-white/90 text-gray-500") + " absolute top-4 left-4 w-10 h-10 rounded-full flex items-center justify-center shadow"}>
               <Heart className="w-5 h-5" fill={isWished ? "currentColor" : "none"} />
             </button>
           </motion.div>
