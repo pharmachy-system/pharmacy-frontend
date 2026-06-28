@@ -5,10 +5,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import { createOrder } from '../api/orders';
+import useSEO from '../hooks/useSEO';
 
 const STEPS = ['معلومات التوصيل', 'طريقة الدفع', 'تأكيد الطلب'];
 
 export default function CheckoutPage() {
+  useSEO({ title: 'إتمام الطلب', description: 'أدخل بيانات التوصيل وطريقة الدفع لإتمام طلبك' });
   const { cartItems, getTotalPrice, getTotalItems, clearCart } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();

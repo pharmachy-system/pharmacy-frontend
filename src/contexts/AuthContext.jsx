@@ -120,12 +120,27 @@ export function AuthProvider({ children }) {
     try {
       const auth = await authApi.verifyBiometric(params);
       setUser(auth.user);
-      return { success: true, user: auth.user };
+      return { success: true, user: auth.user, accessToken: auth.accessToken };
     } catch (err) {
       const msg = err.response?.data?.message || err.message || 'فشل التحقق البيومتري';
       setError(msg);
       return { success: false, error: msg };
     }
+  };
+
+  // Called by LoginPage after usePasskey.authenticate() succeeds
+  // (passkey controller returns tokens directly — just need to hydrate AuthContext)
+  const loginWithPasskey = (passkeyAuthResult) => {
+    if (passkeyAuthResult?.user) {
+      tokenManager.setSession({
+        accessToken:  passkeyAuthResult.accessToken,
+        refreshToken: passkeyAuthResult.refreshToken,
+        user:         passkeyAuthResult.user,
+      });
+      setUser(passkeyAuthResult.user);
+      return { success: true, user: passkeyAuthResult.user, accessToken: passkeyAuthResult.accessToken };
+    }
+    return { success: false, error: 'بيانات المفتاح غير مكتملة' };
   };
 
   const forgotPassword = async ({ email }) => {
@@ -170,6 +185,7 @@ export function AuthProvider({ children }) {
     register,
     login: loginWithEmail,
     loginWithEmail,
+    loginWithPasskey,
     sendPhoneOTP,
     verifyPhoneOTP,
     resendPhoneOTP,

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence, useInView } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
+import useSEO from '../hooks/useSEO';
 import {
   ArrowLeft, Shield, Truck, RefreshCw, Headphones,
   ChevronLeft, ChevronRight, CheckCircle2, Sparkles,
@@ -11,6 +12,7 @@ import BestDealsSection from '../components/BestDealsSection';
 import FlashSalesSection from '../components/FlashSalesSection';
 import HealthConcernsSection from '../components/HealthConcernsSection';
 import TestimonialsSection from '../components/TestimonialsSection';
+import MedicineRecommendations from '../components/MedicineRecommendations';
 
 /* ─── Data ─── */
 const heroSlides = [
@@ -107,6 +109,7 @@ function FadeIn({ children, delay = 0, className = '' }) {
 }
 
 export default function HomePage() {
+  useSEO({ title: 'الرئيسية', description: 'صيدلية الأنصار — أدويتك وفيتاميناتك ومستلزماتك الطبية بأفضل الأسعار مع توصيل سريع' });
   const { user } = useAuth();
   const [slide, setSlide] = useState(0);
   const [visible, setVisible] = useState(true);
@@ -272,6 +275,9 @@ export default function HomePage() {
           ))}
         </div>
       </section>
+
+      {/* ════════════════ RECOMMENDATIONS ════════════════ */}
+      <MedicineRecommendations />
 
       {/* ════════════════ BEST DEALS / FLASH SALES ════════════════ */}
       <BestDealsSection />

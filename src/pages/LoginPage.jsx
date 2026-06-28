@@ -15,9 +15,14 @@ import {
   ShieldCheck,
   Sparkles,
   Loader2,
+  KeyRound,
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useCart } from '../contexts/CartContext';
 import { useBiometric } from '../hooks/useBiometric';
+import usePasskey, { isPasskeySupported } from '../hooks/usePasskey';
+import { tokenManager } from '../utils/tokenManager';
+import useSEO from '../hooks/useSEO';
 import OTPInput from '../components/auth/OTPInput';
 import PinInput from '../components/auth/PinInput';
 
@@ -30,14 +35,21 @@ const TABS = [
 export default function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { loginWithEmail, sendPhoneOTP, verifyPhoneOTP, verifyPin, verifyBiometric } = useAuth();
+  const { loginWithEmail, sendPhoneOTP, verifyPhoneOTP, verifyPin, verifyBiometric, loginWithPasskey } = useAuth();
+  const { mergeGuestCart } = useCart();
   const { isAvailable: biometricAvailable, verify: biometricVerify } = useBiometric();
+  const { authenticate: passkeyAuthenticate, loading: passkeyLoading } = usePasskey();
+  const passkeyAvailable = isPasskeySupported();
+
+  useSEO({ title: 'تسجيل الدخول', description: 'سجّل دخولك إلى صيدلية الأنصار للوصول إلى طلباتك ومفضلتك وسجل مشترياتك' });
 
   const [activeTab, setActiveTab] = useState('email');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const redirectAfterLogin = () => {
+  const redirectAfterLogin = async () => {
+    const token = tokenManager.getAccessToken();
+    if (token) await mergeGuestCart(token).catch(() => {});
     const from = location.state?.from?.pathname || '/';
     navigate(from, { replace: true });
   };
@@ -63,7 +75,7 @@ export default function LoginPage() {
     setLoading(true);
     const result = await loginWithEmail({ email, password });
     setLoading(false);
-    if (result.success) redirectAfterLogin();
+    if (result.success) await redirectAfterLogin();
     else setError(result.error);
   };
 
@@ -91,7 +103,7 @@ export default function LoginPage() {
     setLoading(true);
     const result = await verifyPhoneOTP({ phone, otp: phoneOtp });
     setLoading(false);
-    if (result.success) redirectAfterLogin();
+    if (result.success) await redirectAfterLogin();
     else setError(result.error);
   };
 
@@ -114,7 +126,7 @@ export default function LoginPage() {
     setLoading(true);
     const result = await verifyPin({ pin: pinValue });
     setLoading(false);
-    if (result.success) redirectAfterLogin();
+    if (result.success) await redirectAfterLogin();
     else setError(result.error);
   };
 
@@ -126,7 +138,23 @@ export default function LoginPage() {
       const cred = await biometricVerify({});
       const result = await verifyBiometric(cred);
       setLoading(false);
-      if (result.success) redirectAfterLogin();
+      if (result.success) await redirectAfterLogin();
+      else setError(result.error);
+    } catch (err) {
+      setLoading(false);
+      setError(err.message);
+    }
+  };
+
+  // ============ Passkey ============
+  const handlePasskeyLogin = async () => {
+    setError('');
+    setLoading(true);
+    try {
+      const data = await passkeyAuthenticate(email || undefined);
+      const result = loginWithPasskey(data);
+      setLoading(false);
+      if (result.success) await redirectAfterLogin();
       else setError(result.error);
     } catch (err) {
       setLoading(false);
@@ -190,42 +218,47 @@ export default function LoginPage() {
 
             {/* ===== Email Tab ===== */}
             {activeTab === 'email' && (
-              <form onSubmit={handleEmailLogin} className="space-y-4">
+              <form onSubmit={handleEmailLogin} className="space-y-4" aria-label="نموذج تسجيل الدخول بالبريد الإلكتروني">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                  <label htmlFor="login-email" className="block text-sm font-semibold text-gray-700 mb-1.5">
                     البريد الإلكتروني
                   </label>
                   <div className="relative">
                     <Mail className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                     <input
+                      id="login-email"
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
                       placeholder="example@email.com"
                       dir="ltr"
+                      autoComplete="email"
                       className="w-full pr-11 pl-4 py-3 rounded-xl border-2 border-gray-200 focus:border-pharmacy-cyan focus:ring-4 focus:ring-pharmacy-cyan/15 outline-none transition-all text-left"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                  <label htmlFor="login-password" className="block text-sm font-semibold text-gray-700 mb-1.5">
                     كلمة المرور
                   </label>
                   <div className="relative">
                     <Lock className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                     <input
+                      id="login-password"
                       type={showPassword ? 'text' : 'password'}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
                       placeholder="••••••••"
+                      autoComplete="current-password"
                       className="w-full pr-11 pl-11 py-3 rounded-xl border-2 border-gray-200 focus:border-pharmacy-cyan focus:ring-4 focus:ring-pharmacy-cyan/15 outline-none transition-all"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
+                      aria-label={showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
                       className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-pharmacy-cyan"
                     >
                       {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -393,8 +426,8 @@ export default function LoginPage() {
               </div>
             )}
 
-            {/* Biometric Quick Login */}
-            {biometricAvailable && (
+            {/* Biometric / Passkey Quick Login */}
+            {(biometricAvailable || passkeyAvailable) && (
               <>
                 <div className="relative my-6">
                   <div className="absolute inset-0 flex items-center">
@@ -405,14 +438,33 @@ export default function LoginPage() {
                   </div>
                 </div>
 
-                <button
-                  onClick={handleBiometric}
-                  disabled={loading}
-                  className="w-full flex items-center justify-center gap-3 py-3 rounded-xl border-2 border-pharmacy-cyan/20 bg-cyan-50/50 hover:bg-cyan-50 hover:border-pharmacy-cyan text-pharmacy-blue font-semibold transition-all"
-                >
-                  <Fingerprint className="w-6 h-6 text-pharmacy-cyan" />
-                  <span>دخول سريع بالبصمة</span>
-                </button>
+                <div className="flex gap-3">
+                  {biometricAvailable && (
+                    <button
+                      onClick={handleBiometric}
+                      disabled={loading || passkeyLoading}
+                      aria-label="تسجيل الدخول بالبصمة"
+                      className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border-2 border-pharmacy-cyan/20 bg-cyan-50/50 hover:bg-cyan-50 hover:border-pharmacy-cyan text-pharmacy-blue font-semibold transition-all disabled:opacity-60"
+                    >
+                      <Fingerprint className="w-5 h-5 text-pharmacy-cyan" />
+                      <span className="text-sm">بصمة</span>
+                    </button>
+                  )}
+                  {passkeyAvailable && (
+                    <button
+                      onClick={handlePasskeyLogin}
+                      disabled={loading || passkeyLoading}
+                      aria-label="تسجيل الدخول بمفتاح المرور"
+                      className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border-2 border-pharmacy-blue/20 bg-blue-50/50 hover:bg-blue-50 hover:border-pharmacy-blue text-pharmacy-blue font-semibold transition-all disabled:opacity-60"
+                    >
+                      {passkeyLoading
+                        ? <Loader2 className="w-5 h-5 animate-spin" />
+                        : <KeyRound className="w-5 h-5 text-pharmacy-blue" />
+                      }
+                      <span className="text-sm">مفتاح المرور</span>
+                    </button>
+                  )}
+                </div>
               </>
             )}
 

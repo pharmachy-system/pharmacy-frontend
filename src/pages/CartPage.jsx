@@ -2,8 +2,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Trash2, Plus, Minus, ShoppingCart, ArrowRight, Package, Tag } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '../contexts/CartContext';
+import useSEO from '../hooks/useSEO';
 
 export default function CartPage() {
+  useSEO({ title: 'سلة التسوق', description: 'راجع منتجاتك وأكمل عملية الشراء بأمان' });
   const { cartItems, removeFromCart, updateQuantity, clearCart, getTotalPrice, getTotalItems } = useCart();
   const navigate = useNavigate();
   const totalPrice = getTotalPrice();

@@ -6,6 +6,7 @@ import ProductsTopBar from '../components/ProductsTopBar';
 import ProductsFilterSidebar from '../components/ProductsFilterSidebar';
 import ProductCard from '../components/ProductCard';
 import { getAllProducts } from '../api/productsApi';
+import useSEO from '../hooks/useSEO';
 
 const INITIAL_FILTERS = {
   categories: [],
@@ -17,6 +18,7 @@ const INITIAL_FILTERS = {
 };
 
 const ProductsPage = () => {
+  useSEO({ title: 'المنتجات', description: 'تصفح آلاف الأدوية والفيتامينات ومنتجات العناية الشخصية بأفضل الأسعار' });
   const [allProducts, setAllProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);

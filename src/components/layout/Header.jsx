@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   Search, ShoppingCart, Heart, User, Menu, X,
   Phone, ChevronDown, Pill, LogOut,
@@ -7,12 +7,17 @@ import {
 } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
+import axiosClient from '../../utils/axiosClient';
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [categoriesOpen, setCategoriesOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const debounceRef = useRef(null);
+  const searchWrapRef = useRef(null);
   const [scrolled, setScrolled] = useState(false);
   const { getTotalItems } = useCart();
   const { user, logout } = useAuth();
@@ -25,12 +30,43 @@ export default function Header() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Debounced smart search suggestions
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (searchQuery.trim().length < 2) { setSuggestions([]); return; }
+    debounceRef.current = setTimeout(async () => {
+      try {
+        const { data } = await axiosClient.get(`/medicines?search=${encodeURIComponent(searchQuery)}&limit=5`);
+        const meds = data.medicines || data.data || [];
+        setSuggestions(meds.slice(0, 5));
+        setShowSuggestions(true);
+      } catch { setSuggestions([]); }
+    }, 300);
+    return () => clearTimeout(debounceRef.current);
+  }, [searchQuery]);
+
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    const handler = (e) => {
+      if (searchWrapRef.current && !searchWrapRef.current.contains(e.target)) setShowSuggestions(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
+      setShowSuggestions(false);
       navigate(`/products?search=${encodeURIComponent(searchQuery)}`);
       setSearchQuery('');
     }
+  };
+
+  const pickSuggestion = (med) => {
+    setShowSuggestions(false);
+    setSearchQuery('');
+    navigate(`/product/${med._id || med.id}`);
   };
 
   const handleLogout = () => {
@@ -104,7 +140,8 @@ export default function Header() {
           </Link>
 
           {/* ── SEARCH (middle) ── */}
-          <form onSubmit={handleSearch} className="flex-1 order-2">
+          <div className="flex-1 order-2 relative" ref={searchWrapRef}>
+          <form onSubmit={handleSearch}>
             <div
               className="flex items-center h-[48px] rounded-[16px] overflow-hidden transition-all duration-300"
               style={{
@@ -124,9 +161,13 @@ export default function Header() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
                 placeholder="ابحث عن الأدوية، الفيتامينات، العناية الشخصية..."
                 className="flex-1 bg-transparent border-none outline-none px-4 text-sm text-gray-700 text-right"
                 style={{ fontFamily: 'inherit' }}
+                aria-label="بحث عن المنتجات"
+                aria-autocomplete="list"
+                aria-expanded={showSuggestions}
               />
               <button
                 type="submit"
@@ -139,6 +180,34 @@ export default function Header() {
               </button>
             </div>
           </form>
+
+          {/* Smart search suggestions dropdown */}
+          {showSuggestions && suggestions.length > 0 && (
+            <div className="absolute top-full right-0 left-0 mt-1 bg-white rounded-xl shadow-xl border border-gray-100 z-50 overflow-hidden" role="listbox">
+              {suggestions.map((med) => {
+                const id    = med._id || med.id;
+                const price = med.finalPrice ?? med.price;
+                const img   = med.images?.[0];
+                return (
+                  <button key={id} onClick={() => pickSuggestion(med)} role="option"
+                    className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-cyan-50/60 text-right transition-colors">
+                    {img
+                      ? <img src={img} alt="" className="w-9 h-9 rounded-lg object-cover flex-shrink-0 bg-gray-50" />
+                      : <div className="w-9 h-9 rounded-lg bg-cyan-50 flex-shrink-0 flex items-center justify-center"><Package className="w-4 h-4 text-pharmacy-cyan/40" /></div>
+                    }
+                    <span className="flex-1 text-sm text-gray-700 text-right truncate">{med.name}</span>
+                    {price != null && <span className="text-xs font-bold text-pharmacy-cyan flex-shrink-0">{Number(price).toFixed(0)} ر.س</span>}
+                  </button>
+                );
+              })}
+              <button onClick={handleSearch}
+                className="w-full flex items-center justify-center gap-2 px-4 py-2 text-xs text-pharmacy-cyan hover:bg-cyan-50 font-semibold border-t border-gray-100 transition-colors">
+                <Search className="w-3.5 h-3.5" />
+                عرض كل نتائج &quot;{searchQuery}&quot;
+              </button>
+            </div>
+          )}
+          </div>
 
           {/* ── ICON ACTIONS (left) ── */}
           <div className="flex items-center gap-1 order-1">

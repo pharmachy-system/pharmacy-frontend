@@ -1,13 +1,15 @@
 import { useState } from 'react';
-import { Settings, Bell, Globe, Shield, Smartphone, Loader2, Check } from 'lucide-react';
+import { Settings, Bell, Globe, Shield, Smartphone, Loader2, Check, Sun, Moon } from 'lucide-react';
 import { useLang } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 import { userApi } from '../api/user';
 import { toast } from 'sonner';
 
 export default function SettingsPage() {
   const { lang, setLang, isRTL } = useLang();
   const { user } = useAuth();
+  const { theme, toggle: toggleTheme } = useTheme();
   const [pwForm,   setPwForm]   = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
   const [pwSaving, setPwSaving] = useState(false);
   const [notifs,   setNotifs]   = useState({
@@ -38,6 +40,24 @@ export default function SettingsPage() {
           <Settings className="w-6 h-6 text-cyan-600" />
           {isRTL ? 'الإعدادات' : 'Settings'}
         </h1>
+
+        {/* Dark Mode */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+          <h2 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
+            {theme === 'dark' ? <Moon className="w-4 h-4 text-pharmacy-cyan" /> : <Sun className="w-4 h-4 text-pharmacy-cyan" />}
+            {isRTL ? 'المظهر' : 'Appearance'}
+          </h2>
+          <div className="flex gap-3">
+            {[['light', isRTL ? 'فاتح' : 'Light', Sun], ['dark', isRTL ? 'داكن' : 'Dark', Moon]].map(([t, label, Icon]) => (
+              <button key={t} onClick={() => t !== theme && toggleTheme()}
+                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border-2 font-semibold text-sm transition-colors ${
+                  theme === t ? 'border-pharmacy-cyan bg-pharmacy-cyan/5 text-pharmacy-blue' : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                }`}>
+                <Icon className="w-4 h-4" />{label}
+              </button>
+            ))}
+          </div>
+        </div>
 
         {/* Language */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
@@ -74,6 +94,7 @@ export default function SettingsPage() {
               <label key={key} className="flex items-center justify-between cursor-pointer py-1">
                 <span className="text-sm text-gray-700">{isRTL ? ar : en}</span>
                 <div onClick={() => setNotifs(n => ({ ...n, [key]: !n[key] }))}
+                  role="switch" aria-checked={!!notifs[key]}
                   className={`relative w-11 h-6 rounded-full transition-colors ${notifs[key] ? 'bg-pharmacy-cyan' : 'bg-gray-200'}`}>
                   <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${notifs[key] ? (isRTL ? 'translate-x-0' : 'translate-x-5') : (isRTL ? 'translate-x-5' : 'translate-x-0.5')}`} />
                 </div>
@@ -107,6 +128,33 @@ export default function SettingsPage() {
             </button>
           </div>
         </div>
+
+        {/* Personalised Reminders */}
+        {user && (
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+            <h2 className="font-semibold text-gray-800 mb-1 flex items-center gap-2">
+              <Bell className="w-4 h-4 text-pharmacy-cyan" />
+              {isRTL ? 'التذكيرات الشخصية' : 'Personalised Reminders'}
+            </h2>
+            <p className="text-xs text-gray-400 mb-4">{isRTL ? 'سيتم إرسال تذكيرات بناءً على تاريخ مشترياتك وأدويتك الدورية.' : 'Reminders based on your purchase history and recurring medicines.'}</p>
+            <div className="space-y-3">
+              {[
+                { key: 'refillReminder',    ar: 'تذكير بإعادة الطلب (الأدوية الدورية)',   en: 'Refill Reminders (recurring medicines)' },
+                { key: 'expiryAlert',       ar: 'تنبيه انتهاء صلاحية الأدوية',           en: 'Medicine Expiry Alerts' },
+                { key: 'healthTips',        ar: 'نصائح صحية أسبوعية',                    en: 'Weekly Health Tips' },
+              ].map(({ key, ar, en }) => (
+                <label key={key} className="flex items-center justify-between cursor-pointer py-1">
+                  <span className="text-sm text-gray-700">{isRTL ? ar : en}</span>
+                  <div onClick={() => setNotifs(n => ({ ...n, [key]: !n[key] }))}
+                    className={`relative w-11 h-6 rounded-full transition-colors ${notifs[key] ? 'bg-pharmacy-cyan' : 'bg-gray-200'}`}
+                    role="switch" aria-checked={!!notifs[key]}>
+                    <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${notifs[key] ? (isRTL ? 'translate-x-0' : 'translate-x-5') : (isRTL ? 'translate-x-5' : 'translate-x-0.5')}`} />
+                  </div>
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Account Info */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
