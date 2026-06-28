@@ -1,11 +1,57 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FileText, Upload, Camera, X, CheckCircle, Clock, AlertCircle, FileImage, Trash2 } from 'lucide-react';
+import { FileText, Upload, Camera, X, CheckCircle, Clock, AlertCircle, FileImage, Trash2, Loader2 } from 'lucide-react';
+import { prescriptionsApi } from '../api/prescriptions';
+import { useAuth } from '../contexts/AuthContext';
+import { toast } from 'sonner';
 
 const PrescriptionUploadPage = () => {
+  const { user } = useAuth();
   const [prescriptions, setPrescriptions] = useState([]);
   const [dragActive, setDragActive] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef(null);
+
+  // Fetch the user's existing prescriptions on mount
+  useEffect(() => {
+    if (!user) return;
+    prescriptionsApi.getMy()
+      .then(d => {
+        const list = Array.isArray(d) ? d : (d.prescriptions || d.data || []);
+        setPrescriptions(list);
+      })
+      .catch(() => toast.error('Failed to load prescriptions'));
+  }, [user]);
+
+  const processFiles = async (files) => {
+    if (!user) { toast.error('Please log in to upload prescriptions'); return; }
+    const validFiles = Array.from(files).filter(f => {
+      if (f.size > 10 * 1024 * 1024) {
+        toast.error(`${f.name} exceeds the 10 MB limit`);
+        return false;
+      }
+      return true;
+    });
+    if (!validFiles.length) return;
+
+    setUploading(true);
+    for (const file of validFiles) {
+      try {
+        const formData = new FormData();
+        formData.append('images', file);
+        const result = await prescriptionsApi.create(formData);
+        const saved = result.prescription || result.data || result;
+        // Normalise fields the card renderer expects
+        if (!saved.fileName) saved.fileName = file.name;
+        if (!saved.uploadDate) saved.uploadDate = new Date().toLocaleDateString('en-GB');
+        setPrescriptions(prev => [saved, ...prev]);
+        toast.success(`${file.name} uploaded`);
+      } catch {
+        toast.error(`Failed to upload ${file.name}`);
+      }
+    }
+    setUploading(false);
+  };
 
   const handleDrag = (e) => {
     e.preventDefault();
@@ -21,6 +67,16 @@ const PrescriptionUploadPage = () => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
+    if (e.dataTransfer.files?.length) {
+      processFiles(e.dataTransfer.files);
+    }
+  };
+
+  const handleFileChange = (e) => {
+    if (e.target.files?.length) {
+      processFiles(e.target.files);
+      e.target.value = ''; // allow re-selecting the same file
+    }
   };
 
   const handleBrowseClick = () => {
@@ -82,7 +138,7 @@ const PrescriptionUploadPage = () => {
                 : 'border-gray-200 hover:border-cyan-300 hover:bg-cyan-50/30'
             }`}
           >
-            <input ref={fileInputRef} type="file" accept="image/*,.pdf" multiple className="hidden" />
+            <input ref={fileInputRef} type="file" accept="image/*,.pdf" multiple className="hidden" onChange={handleFileChange} />
             <div className="inline-flex items-center justify-center w-20 h-20 bg-cyan-50 rounded-full mb-4">
               <Upload className="w-10 h-10 text-cyan-500" />
             </div>
@@ -93,9 +149,9 @@ const PrescriptionUploadPage = () => {
               or click to browse files (JPG, PNG,  max 10MB)PDF 
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <button className="flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold py-3 px-6 rounded-2xl shadow-md hover:shadow-lg transition-all">
-                <Upload className="w-4 h-4" />
-                Browse Files
+              <button disabled={uploading} className="flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold py-3 px-6 rounded-2xl shadow-md hover:shadow-lg transition-all disabled:opacity-60">
+                {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                {uploading ? 'Uploading...' : 'Browse Files'}
               </button>
               <button className="flex items-center justify-center gap-2 bg-white border border-gray-200 text-gray-700 font-semibold py-3 px-6 rounded-2xl hover:bg-gray-50 transition-all">
                 <Camera className="w-4 h-4" />

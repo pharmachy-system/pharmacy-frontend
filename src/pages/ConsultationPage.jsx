@@ -32,12 +32,11 @@ export default function ConsultationPage() {
         title: `استشارة: ${topic}`,
         body: message,
         urgent,
-      }).catch(() => null);
-      setTicketId(data?.id || Math.random().toString(36).slice(2, 8).toUpperCase());
+      });
+      setTicketId(data?.id || data?.ticketId || data?._id || null);
       setSubmitted(true);
     } catch {
-      setSubmitted(true);
-      setTicketId(Math.random().toString(36).slice(2, 8).toUpperCase());
+      toast.error('فشل إرسال الاستشارة. يرجى التحقق من اتصالك والمحاولة مرة أخرى.');
     } finally { setLoading(false); }
   };
 

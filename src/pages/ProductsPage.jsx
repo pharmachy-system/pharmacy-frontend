@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { PackageX, Loader2 } from 'lucide-react';
 import ProductsHeroCarousel from '../components/ProductsHeroCarousel';
@@ -7,6 +7,10 @@ import ProductsFilterSidebar from '../components/ProductsFilterSidebar';
 import ProductCard from '../components/ProductCard';
 import { getAllProducts } from '../api/productsApi';
 import useSEO from '../hooks/useSEO';
+import { useAuth } from '../contexts/AuthContext';
+import axiosClient from '../utils/axiosClient';
+import { toggleGuestWishlistItem } from '../utils/guestWishlist';
+import { toast } from 'sonner';
 
 const INITIAL_FILTERS = {
   categories: [],
@@ -19,6 +23,10 @@ const INITIAL_FILTERS = {
 
 const ProductsPage = () => {
   useSEO({ title: 'المنتجات', description: 'تصفح آلاف الأدوية والفيتامينات ومنتجات العناية الشخصية بأفضل الأسعار' });
+  const { user } = useAuth();
+  // Tracks which product IDs are currently wishlisted on this page session
+  // (ProductCard starts with isWishlisted=false so first toggle = add)
+  const wishlistSet = useRef(new Set());
   const [allProducts, setAllProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -99,12 +107,32 @@ const ProductsPage = () => {
     return result;
   }, [allProducts, filters, sortBy, searchQuery]);
 
-  const handleAddToCart = (product) => {
-    console.log('Add to cart:', product.id);
-  };
+  // handleAddToCart is unused — ProductCard calls useCart().addToCart internally
+  const handleAddToCart = (_product) => {};
 
-  const handleToggleWishlist = (product) => {
-    console.log('Toggle wishlist:', product.id);
+  const handleToggleWishlist = async (product) => {
+    const id = product._id || product.id;
+    const isAdding = !wishlistSet.current.has(id);
+    if (isAdding) { wishlistSet.current.add(id); } else { wishlistSet.current.delete(id); }
+
+    if (user) {
+      try {
+        if (isAdding) {
+          await axiosClient.post('/wishlist', { medicineId: id });
+          toast.success('تمت الإضافة إلى المفضلة');
+        } else {
+          await axiosClient.delete(`/wishlist/${id}`);
+          toast.success('تمت الإزالة من المفضلة');
+        }
+      } catch {
+        // Rollback local tracking on failure
+        if (isAdding) { wishlistSet.current.delete(id); } else { wishlistSet.current.add(id); }
+        toast.error('فشل تحديث المفضلة');
+      }
+    } else {
+      const added = toggleGuestWishlistItem(product);
+      toast.success(added ? 'تمت الإضافة إلى المفضلة' : 'تمت الإزالة من المفضلة');
+    }
   };
 
   return (

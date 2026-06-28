@@ -38,9 +38,12 @@ export default function LoyaltyPage() {
 
   const redeem = (reward) => {
     if (points < reward.points) { toast.error(`تحتاج ${reward.points - points} نقطة إضافية`); return; }
-    setRedeeming(reward.id);
-    toast.info(`سيتم تطبيق ${reward.title} على طلبك القادم`);
-    setTimeout(() => setRedeeming(null), 1000);
+    // Points are deducted automatically at checkout when you enable "استخدام نقاط الولاء"
+    // during order placement — there is no standalone redeem endpoint.
+    toast.info(
+      `لاستخدام ${reward.title}، فعّل خيار "استخدام نقاط الولاء" عند إتمام طلبك القادم وسيُخصم المبلغ تلقائياً.`,
+      { duration: 6000 }
+    );
   };
 
   if (loading) return (

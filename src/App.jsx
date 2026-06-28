@@ -202,16 +202,16 @@ function App() {
                       {/* Shopping */}
                       <Route path="/cart"              element={<CartPage />} />
                       <Route path="/checkout"          element={<ProtectedRoute><CheckoutPage /></ProtectedRoute>} />
-                      <Route path="/payment/result"    element={<PaymentResultPage />} />
-                      <Route path="/payment/result/:orderId" element={<PaymentResultPage />} />
+                      <Route path="/payment/result"    element={<ProtectedRoute><PaymentResultPage /></ProtectedRoute>} />
+                      <Route path="/payment/result/:orderId" element={<ProtectedRoute><PaymentResultPage /></ProtectedRoute>} />
                       <Route path="/wishlist"          element={<WishlistPage />} />
                       <Route path="/favorites"         element={<WishlistPage />} />
 
                       {/* Customer account */}
                       <Route path="/account"           element={<ProtectedRoute><AccountPage /></ProtectedRoute>} />
                       <Route path="/orders"            element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />
-                      <Route path="/orders/:id"        element={<OrderDetailPage />} />
-                      <Route path="/orders/:id/tracking" element={<OrderTrackingPage />} />
+                      <Route path="/orders/:id"        element={<ProtectedRoute><OrderDetailPage /></ProtectedRoute>} />
+                      <Route path="/orders/:id/tracking" element={<ProtectedRoute><OrderTrackingPage /></ProtectedRoute>} />
                       <Route path="/prescriptions"     element={<ProtectedRoute><PrescriptionsPage /></ProtectedRoute>} />
                       <Route path="/prescription-upload" element={<ProtectedRoute><PrescriptionUploadPage /></ProtectedRoute>} />
                       <Route path="/notifications"     element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
