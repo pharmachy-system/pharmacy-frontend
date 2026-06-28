@@ -1,126 +1,126 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Bell, Package, Tag, Info, Truck, Check, Trash2 } from "lucide-react";
+import { useEffect, useState } from 'react';
+import { Bell, Package, Tag, Info, Truck, Trash2, CheckCheck, Loader2 } from 'lucide-react';
+import { useNotifications } from '../contexts/NotificationContext';
+import { motion, AnimatePresence } from 'framer-motion';
 
-const FILTERS = ["All", "Orders", "Offers", "System"];
+const FILTERS = [
+  { id: 'all',    label: 'الكل'   },
+  { id: 'order',  label: 'الطلبات' },
+  { id: 'offer',  label: 'العروض'  },
+  { id: 'system', label: 'النظام'  },
+];
 
-const typeConfig = {
-  order:  { icon: Package, bg: "bg-blue-50",   color: "text-blue-500" },
-  offer:  { icon: Tag,     bg: "bg-orange-50", color: "text-orange-500" },
-  system: { icon: Info,    bg: "bg-gray-50",   color: "text-gray-500" },
-  delivery: { icon: Truck, bg: "bg-green-50",  color: "text-green-500" },
+const TYPE_CFG = {
+  order:    { icon: Package, bg: 'bg-blue-50',    color: 'text-blue-500'    },
+  delivery: { icon: Truck,   bg: 'bg-emerald-50', color: 'text-emerald-500' },
+  offer:    { icon: Tag,     bg: 'bg-amber-50',   color: 'text-amber-500'   },
+  system:   { icon: Info,    bg: 'bg-gray-50',    color: 'text-gray-500'    },
 };
 
 export default function NotificationsPage() {
-  const navigate = useNavigate();
-  const [filter, setFilter] = useState("All");
-  const [notifications, setNotifications] = useState([]);
+  const { notifications, loading, fetchNotifications, markRead, markAllRead, deleteNotification, clearAll } = useNotifications();
+  const [filter, setFilter] = useState('all');
 
-  const filtered = notifications.filter(n =>
-    filter === "All" ? true :
-    filter === "Orders" ? n.type === "order" || n.type === "delivery" :
-    filter === "Offers" ? n.type === "offer" :
-    n.type === "system"
-  );
+  useEffect(() => { fetchNotifications(); }, []);
 
-  const markAllRead = () => setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-  const deleteOne = (id) => setNotifications(prev => prev.filter(n => n.id !== id));
-  const markRead = (id) => setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
+  const filtered = notifications.filter(n => {
+    if (filter === 'all')    return true;
+    if (filter === 'order')  return n.type === 'order' || n.type === 'delivery';
+    if (filter === 'offer')  return n.type === 'offer';
+    if (filter === 'system') return n.type === 'system' || !n.type;
+    return true;
+  });
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const unread = notifications.filter(n => !n.read).length;
+
+  const fmtTime = iso => {
+    if (!iso) return '';
+    const diff = (Date.now() - new Date(iso)) / 1000;
+    if (diff < 60)    return 'الآن';
+    if (diff < 3600)  return `${Math.floor(diff/60)} دقيقة`;
+    if (diff < 86400) return `${Math.floor(diff/3600)} ساعة`;
+    return new Date(iso).toLocaleDateString('ar-SA', { day: 'numeric', month: 'short' });
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50" dir="ltr">
-      <div className="max-w-2xl mx-auto px-4 py-6">
-
-        {/* Header */}
-        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}
-          className="flex items-center justify-between mb-6">
+    <div dir="rtl" className="min-h-screen bg-gray-50 pb-8">
+      <div className="bg-white border-b border-gray-100 px-4 py-4 sticky top-0 z-10">
+        <div className="max-w-lg mx-auto flex items-center justify-between">
+          <h1 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+            <Bell className="w-5 h-5 text-cyan-600" />
+            الإشعارات
+            {unread > 0 && (
+              <span className="w-5 h-5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">
+                {unread > 9 ? '9+' : unread}
+              </span>
+            )}
+          </h1>
           <div className="flex items-center gap-3">
-            <button onClick={() => navigate(-1)}
-              className="p-2 rounded-xl bg-white border border-gray-200 hover:bg-gray-50">
-              <ArrowRight className="w-5 h-5 text-gray-600" />
-            </button>
-            <div>
-              <h1 className="text-xl font-bold text-gray-900">Notifications</h1>
-              {unreadCount > 0 && (
-                <p className="text-sm text-cyan-500 font-medium">{unreadCount} unread</p>
-              )}
-            </div>
+            {unread > 0 && (
+              <button onClick={markAllRead} className="flex items-center gap-1 text-xs text-cyan-600 hover:underline">
+                <CheckCheck className="w-3.5 h-3.5" /> قراءة الكل
+              </button>
+            )}
+            {notifications.length > 0 && (
+              <button onClick={clearAll} className="flex items-center gap-1 text-xs text-red-400 hover:underline">
+                <Trash2 className="w-3.5 h-3.5" /> مسح الكل
+              </button>
+            )}
           </div>
-          {unreadCount > 0 && (
-            <button onClick={markAllRead}
-              className="flex items-center gap-1.5 text-sm text-cyan-600 font-medium bg-cyan-50 px-3 py-1.5 rounded-lg hover:bg-cyan-100 transition-all">
-              <Check className="w-4 h-4" />
-              Mark all read
-            </button>
-          )}
-        </motion.div>
-
-        {/* Filters */}
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-          className="flex gap-2 mb-5 overflow-x-auto pb-1">
+        </div>
+        <div className="max-w-lg mx-auto mt-3 flex gap-1 bg-gray-100 rounded-xl p-1">
           {FILTERS.map(f => (
-            <button key={f} onClick={() => setFilter(f)}
-              className={"px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all " +
-                (filter === f ? "bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-sm" : "bg-white border border-gray-200 text-gray-500 hover:bg-gray-50")}>
-              {f}
+            <button key={f.id} onClick={() => setFilter(f.id)}
+              className={`flex-1 py-1.5 rounded-lg text-xs font-semibold transition-colors ${filter===f.id ? 'bg-white text-cyan-600 shadow-sm' : 'text-gray-500'}`}>
+              {f.label}
             </button>
           ))}
-        </motion.div>
+        </div>
+      </div>
 
-        {/* Empty State */}
-        {filtered.length === 0 && (
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-            className="text-center py-20">
-            <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Bell className="w-10 h-10 text-gray-300" />
-            </div>
-            <p className="text-gray-500 font-medium">No notifications yet</p>
-            <p className="text-gray-400 text-sm mt-1">You are all caught up!</p>
-          </motion.div>
-        )}
-
-        {/* List */}
-        <div className="space-y-2">
-          <AnimatePresence>
-            {filtered.map((notif) => {
-              const cfg = typeConfig[notif.type] || typeConfig.system;
-              const Icon = cfg.icon;
-              return (
-                <motion.div key={notif.id}
-                  initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: 20 }}
-                  onClick={() => markRead(notif.id)}
-                  className={"bg-white rounded-2xl border p-4 cursor-pointer transition-all " +
-                    (!notif.read ? "border-cyan-200 shadow-sm" : "border-gray-100")}>
-                  <div className="flex items-start gap-3">
-                    <div className={"p-2.5 rounded-xl flex-shrink-0 " + cfg.bg}>
-                      <Icon className={"w-5 h-5 " + cfg.color} />
+      <div className="max-w-lg mx-auto px-4 py-4">
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="w-8 h-8 animate-spin text-cyan-500" />
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="text-center py-20 text-gray-400">
+            <Bell className="w-12 h-12 mx-auto mb-4 opacity-20" />
+            <p className="font-medium">لا توجد إشعارات</p>
+            <p className="text-sm mt-1">ستظهر هنا إشعارات طلباتك وعروضك</p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <AnimatePresence>
+              {filtered.map(n => {
+                const cfg = TYPE_CFG[n.type] || TYPE_CFG.system;
+                const Icon = cfg.icon;
+                return (
+                  <motion.div key={n._id}
+                    initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: 20 }}
+                    onClick={() => !n.read && markRead(n._id)}
+                    className={`flex gap-3 p-4 rounded-2xl border cursor-pointer transition-colors ${n.read ? 'bg-white border-gray-100' : 'bg-cyan-50/50 border-cyan-100'}`}>
+                    <div className={`w-10 h-10 rounded-xl ${cfg.bg} flex items-center justify-center flex-shrink-0`}>
+                      <Icon className={`w-4 h-4 ${cfg.color}`} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
-                        <p className={"text-sm font-semibold " + (!notif.read ? "text-gray-900" : "text-gray-600")}>
-                          {notif.title}
-                        </p>
-                        <div className="flex items-center gap-1 flex-shrink-0">
-                          {!notif.read && <div className="w-2 h-2 rounded-full bg-cyan-500" />}
-                          <button onClick={e => { e.stopPropagation(); deleteOne(notif.id); }}
-                            className="p-1 rounded-lg hover:bg-red-50 text-gray-300 hover:text-red-400 transition-all">
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
+                        <p className={`text-sm font-semibold leading-snug ${n.read ? 'text-gray-700' : 'text-gray-900'}`}>{n.title}</p>
+                        {!n.read && <div className="w-2 h-2 rounded-full bg-cyan-500 flex-shrink-0 mt-1" />}
                       </div>
-                      <p className="text-xs text-gray-500 mt-0.5">{notif.message}</p>
-                      <p className="text-xs text-gray-400 mt-1">{notif.time}</p>
+                      {n.body && <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{n.body}</p>}
+                      <p className="text-[10px] text-gray-400 mt-1">{fmtTime(n.createdAt)}</p>
                     </div>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </AnimatePresence>
-        </div>
-
+                    <button onClick={e => { e.stopPropagation(); deleteNotification(n._id); }}
+                      className="p-1 rounded-lg text-gray-300 hover:text-red-400 flex-shrink-0 self-start">
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
+          </div>
+        )}
       </div>
     </div>
   );

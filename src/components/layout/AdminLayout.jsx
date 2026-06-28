@@ -2,7 +2,7 @@ import { NavLink, Outlet } from 'react-router-dom';
 import {
   LayoutDashboard, Package, ShoppingCart, Users,
   ChevronRight, Pill, TrendingUp, Warehouse, Tag,
-  BarChart2, Layers, Award, Zap, MapPin, Settings,
+  BarChart2, Layers, Award, Zap, MapPin, Settings, BookOpen,
 } from 'lucide-react';
 
 const NAV = [
@@ -18,6 +18,7 @@ const NAV = [
   { to: '/admin/brands',       icon: Award,           label: 'Brands' },
   { to: '/admin/flash-sales',  icon: Zap,             label: 'Flash Sales' },
   { to: '/admin/delivery-zones', icon: MapPin,        label: 'Delivery' },
+  { to: '/admin/articles',     icon: BookOpen,        label: 'Articles' },
   { to: '/admin/settings',     icon: Settings,        label: 'Settings' },
 ];
 

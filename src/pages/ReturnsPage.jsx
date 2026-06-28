@@ -1,167 +1,189 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Package, RotateCcw, Clock, CheckCircle, XCircle, ChevronRight, AlertCircle, Plus } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { Package, RotateCcw, Clock, CheckCircle, XCircle, AlertCircle, Plus, Loader2, X, ChevronLeft } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { returnsApi } from '../api/returns';
+import { getMyOrders } from '../api/orders';
+import { toast } from 'sonner';
+import { motion, AnimatePresence } from 'framer-motion';
 
-const ReturnsPage = () => {
-  const [returns, setReturns] = useState([]);
-  const [activeTab, setActiveTab] = useState('all');
+const STATUS_CFG = {
+  pending:   { icon: Clock,        color: 'text-amber-600',  bg: 'bg-amber-50',  border: 'border-amber-200', label: 'قيد المراجعة' },
+  approved:  { icon: CheckCircle,  color: 'text-emerald-600',bg: 'bg-emerald-50',border: 'border-emerald-200',label: 'موافق'         },
+  rejected:  { icon: XCircle,      color: 'text-red-600',    bg: 'bg-red-50',    border: 'border-red-200',   label: 'مرفوض'         },
+  completed: { icon: CheckCircle,  color: 'text-cyan-600',   bg: 'bg-cyan-50',   border: 'border-cyan-200',  label: 'مكتمل'         },
+};
 
-  const tabs = [
-    { id: 'all', label: 'All Returns' },
-    { id: 'pending', label: 'Pending' },
-    { id: 'approved', label: 'Approved' },
-    { id: 'rejected', label: 'Rejected' },
-    { id: 'completed', label: 'Completed' },
-  ];
+const TABS = ['الكل', 'قيد المراجعة', 'موافق', 'مرفوض', 'مكتمل'];
+const REASONS = ['المنتج تالف','منتج خاطئ','لم يطابق الوصف','انتهاء الصلاحية','سبب آخر'];
 
-  const filteredReturns = returns.filter((r) =>
-    activeTab === 'all' ? true : r.status === activeTab
-  );
+export default function ReturnsPage() {
+  const [returns,  setReturns]  = useState([]);
+  const [orders,   setOrders]   = useState([]);
+  const [loading,  setLoading]  = useState(true);
+  const [tab,      setTab]      = useState('الكل');
+  const [modal,    setModal]    = useState(false);
+  const [form,     setForm]     = useState({ orderId: '', reason: '', description: '' });
+  const [saving,   setSaving]   = useState(false);
 
-  const getStatusConfig = (status) => {
-    switch (status) {
-      case 'pending':
-        return { icon: Clock, color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-200' };
-      case 'approved':
-        return { icon: CheckCircle, color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200' };
-      case 'rejected':
-        return { icon: XCircle, color: 'text-red-600', bg: 'bg-red-50', border: 'border-red-200' };
-      case 'completed':
-        return { icon: CheckCircle, color: 'text-cyan-600', bg: 'bg-cyan-50', border: 'border-cyan-200' };
-      default:
-        return { icon: AlertCircle, color: 'text-gray-600', bg: 'bg-gray-50', border: 'border-gray-200' };
-    }
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [r1, r2] = await Promise.allSettled([returnsApi.getMy(), getMyOrders()]);
+      if (r1.status === 'fulfilled') setReturns(r1.value.returns || r1.value.data || []);
+      if (r2.status === 'fulfilled') setOrders(r2.value.orders || []);
+    } catch { toast.error('فشل تحميل المرتجعات'); }
+    finally { setLoading(false); }
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  const STATUS_LABEL_MAP = { pending: 'قيد المراجعة', approved: 'موافق', rejected: 'مرفوض', completed: 'مكتمل' };
+  const filtered = returns.filter(r => tab === 'الكل' || STATUS_LABEL_MAP[r.status] === tab);
+
+  const submit = async () => {
+    if (!form.orderId || !form.reason) { toast.error('يرجى اختيار الطلب والسبب'); return; }
+    setSaving(true);
+    try {
+      await returnsApi.create(form);
+      toast.success('تم تقديم طلب الاسترجاع');
+      setModal(false);
+      setForm({ orderId: '', reason: '', description: '' });
+      load();
+    } catch (err) { toast.error(err.response?.data?.message || 'فشل تقديم الطلب'); }
+    finally { setSaving(false); }
   };
 
+  const fmt = iso => iso ? new Date(iso).toLocaleDateString('ar-SA', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+
   return (
-    <div dir="ltr" className="min-h-screen bg-gray-50">
+    <div dir="rtl" className="min-h-screen bg-gray-50 pb-8">
       {/* Header */}
-      <div className="bg-gradient-to-r from-cyan-500 to-blue-600 px-4 pt-8 pb-10 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="max-w-5xl mx-auto"
-        >
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
-              <RotateCcw className="w-6 h-6 text-white" />
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-white">My Returns</h1>
-          </div>
-          <p className="text-cyan-50 text-sm sm:text-base">
-            Track and manage your return requests
-          </p>
-        </motion.div>
+      <div className="bg-gradient-to-r from-orange-500 to-red-500 px-4 pt-8 pb-16">
+        <div className="max-w-2xl mx-auto flex items-center justify-between">
+          <h1 className="text-xl font-bold text-white flex items-center gap-2">
+            <RotateCcw className="w-5 h-5" /> المرتجعات
+          </h1>
+          <button onClick={() => setModal(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-xl text-sm font-semibold">
+            <Plus className="w-4 h-4" /> طلب استرجاع
+          </button>
+        </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6">
-        {/* New Return Button */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.1 }}
-          className="mb-6"
-        >
-          <button className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white border-2 border-dashed border-cyan-300 hover:border-cyan-500 text-cyan-600 hover:text-cyan-700 font-semibold py-3 px-6 rounded-2xl shadow-sm hover:shadow-md transition-all">
-            <Plus className="w-5 h-5" />
-            Request a New Return
-          </button>
-        </motion.div>
-
+      <div className="max-w-2xl mx-auto px-4 -mt-10 space-y-4">
         {/* Tabs */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.4, delay: 0.15 }}
-          className="flex gap-2 overflow-x-auto pb-2 mb-6 scrollbar-hide"
-        >
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`whitespace-nowrap px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-                activeTab === tab.id
-                  ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-md'
-                  : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
-              }`}
-            >
-              {tab.label}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-1.5 flex gap-1 overflow-x-auto">
+          {TABS.map(t => (
+            <button key={t} onClick={() => setTab(t)}
+              className={`flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors ${
+                tab === t ? 'bg-orange-500 text-white' : 'text-gray-500 hover:bg-gray-100'
+              }`}>
+              {t}
             </button>
           ))}
-        </motion.div>
+        </div>
 
-        {/* Returns List */}
-        {filteredReturns.length === 0 ? (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.4, delay: 0.2 }}
-            className="bg-white rounded-3xl shadow-sm border border-gray-100 p-12 text-center"
-          >
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-cyan-50 rounded-full mb-4">
-              <Package className="w-10 h-10 text-cyan-500" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">No returns found</h3>
-            <p className="text-gray-500 text-sm max-w-sm mx-auto">
-              You haven't requested any returns yet. Returns for eligible orders can be requested within 14 days of delivery.
-            </p>
-          </motion.div>
+        {loading ? (
+          <div className="flex items-center justify-center py-20 bg-white rounded-2xl border">
+            <Loader2 className="w-6 h-6 animate-spin text-orange-500" />
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm text-center py-20 text-gray-400">
+            <RotateCcw className="w-12 h-12 mx-auto mb-4 opacity-20" />
+            <p className="font-medium">لا توجد مرتجعات</p>
+            <button onClick={() => setModal(true)}
+              className="mt-4 text-sm text-orange-500 hover:underline">طلب استرجاع +</button>
+          </div>
         ) : (
-          <div className="space-y-4">
-            {filteredReturns.map((item, index) => {
-              const statusConfig = getStatusConfig(item.status);
-              const StatusIcon = statusConfig.icon;
+          <div className="space-y-3">
+            {filtered.map(r => {
+              const cfg = STATUS_CFG[r.status] || STATUS_CFG.pending;
+              const Icon = cfg.icon;
               return (
-                <motion.div
-                  key={item.id}
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.1 * index }}
-                  className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-5 hover:shadow-md transition-shadow cursor-pointer"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="w-14 h-14 bg-gray-100 rounded-xl overflow-hidden flex items-center justify-center">
-                        <Package className="w-6 h-6 text-gray-400" />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-gray-800">{item.productName}</h4>
-                        <p className="text-sm text-gray-500">Order #{item.orderId}</p>
-                      </div>
+                <div key={r._id} className={`bg-white rounded-2xl border ${cfg.border} shadow-sm p-5`}>
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <p className="text-sm font-bold text-gray-800">طلب رقم #{r._id?.slice(-6).toUpperCase()}</p>
+                      <p className="text-xs text-gray-400 mt-0.5">{fmt(r.createdAt)}</p>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <span className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border ${statusConfig.bg} ${statusConfig.color} ${statusConfig.border}`}>
-                        <StatusIcon className="w-3.5 h-3.5" />
-                        {item.status}
-                      </span>
-                      <ChevronRight className="w-5 h-5 text-gray-400" />
-                    </div>
+                    <span className={`flex items-center gap-1 text-xs px-2.5 py-1 rounded-full font-semibold ${cfg.bg} ${cfg.color}`}>
+                      <Icon className="w-3 h-3" /> {cfg.label}
+                    </span>
                   </div>
-                </motion.div>
+                  <div className="space-y-1.5 text-sm text-gray-600">
+                    {r.reason && <p>السبب: <strong className="text-gray-800">{r.reason}</strong></p>}
+                    {r.description && <p className="text-gray-500 text-xs">{r.description}</p>}
+                    {r.refundAmount && <p>مبلغ الاسترداد: <strong className="text-emerald-600">{r.refundAmount} ر.س</strong></p>}
+                    {r.adminNote && (
+                      <div className="bg-gray-50 rounded-lg p-2 mt-2 text-xs text-gray-600">
+                        <strong>ملاحظة الإدارة:</strong> {r.adminNote}
+                      </div>
+                    )}
+                  </div>
+                </div>
               );
             })}
           </div>
         )}
-
-        {/* Return Policy Info */}
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.3 }}
-          className="mt-8 bg-blue-50 border border-blue-100 rounded-2xl p-5 flex items-start gap-3"
-        >
-          <AlertCircle className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
-          <div>
-            <h4 className="font-semibold text-blue-900 text-sm mb-1">Return Policy</h4>
-            <p className="text-blue-700 text-sm">
-              Items can be returned within 14 days of delivery if unopened and unused. Medications and personal care items are non-returnable for safety reasons unless defective or incorrectly shipped.
-            </p>
-          </div>
-        </motion.div>
       </div>
+
+      {/* New return modal */}
+      <AnimatePresence>
+        {modal && (
+          <motion.div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={e => e.target === e.currentTarget && setModal(false)}>
+            <motion.div className="bg-white rounded-3xl shadow-2xl w-full max-w-md"
+              initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 50, opacity: 0 }}>
+              <div className="flex items-center justify-between p-5 border-b border-gray-100">
+                <h3 className="font-bold text-gray-800">طلب استرجاع منتج</h3>
+                <button onClick={() => setModal(false)} className="p-1.5 rounded-xl hover:bg-gray-100">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="p-5 space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">اختر الطلب</label>
+                  <select value={form.orderId} onChange={e => setForm(f => ({ ...f, orderId: e.target.value }))}
+                    className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm outline-none focus:border-orange-500">
+                    <option value="">-- اختر طلباً --</option>
+                    {orders.filter(o => o.status === 'delivered').map(o => (
+                      <option key={o._id} value={o._id}>
+                        #{o._id.slice(-6).toUpperCase()} — {Number(o.total||0).toFixed(0)} ر.س
+                      </option>
+                    ))}
+                  </select>
+                  {orders.filter(o => o.status === 'delivered').length === 0 && (
+                    <p className="text-xs text-gray-400 mt-1">يمكن استرجاع الطلبات المُسلَّمة فقط</p>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">سبب الاسترجاع</label>
+                  <select value={form.reason} onChange={e => setForm(f => ({ ...f, reason: e.target.value }))}
+                    className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm outline-none focus:border-orange-500">
+                    <option value="">-- اختر السبب --</option>
+                    {REASONS.map(r => <option key={r} value={r}>{r}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">تفاصيل إضافية (اختياري)</label>
+                  <textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
+                    rows={3} placeholder="وصف المشكلة بالتفصيل..."
+                    className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm outline-none focus:border-orange-500 resize-none" />
+                </div>
+              </div>
+              <div className="flex gap-2 px-5 pb-5">
+                <button onClick={() => setModal(false)} className="flex-1 py-2.5 rounded-xl border text-gray-600 font-semibold text-sm hover:bg-gray-50">إلغاء</button>
+                <button onClick={submit} disabled={saving}
+                  className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-semibold text-sm disabled:opacity-50">
+                  {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <RotateCcw className="w-4 h-4" />}
+                  تقديم الطلب
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
-};
-
-export default ReturnsPage;
+}

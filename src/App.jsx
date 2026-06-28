@@ -91,6 +91,11 @@ const AdminBrandsPage        = lazy(() => import('./pages/admin/AdminBrandsPage'
 const AdminFlashSalesPage    = lazy(() => import('./pages/admin/AdminFlashSalesPage'))
 const AdminDeliveryZonesPage = lazy(() => import('./pages/admin/AdminDeliveryZonesPage'))
 const AdminSettingsPage      = lazy(() => import('./pages/admin/AdminSettingsPage'))
+const AdminArticlesPage      = lazy(() => import('./pages/admin/AdminArticlesPage'))
+
+// Articles
+const ArticlesPage           = lazy(() => import('./pages/ArticlesPage'))
+const ArticleDetailPage      = lazy(() => import('./pages/ArticleDetailPage'))
 
 // Pharmacist pages
 const PharmacistDashboard          = lazy(() => import('./pages/pharmacist/PharmacistDashboard'))
@@ -155,6 +160,7 @@ function App() {
                       <Route path="flash-sales" element={<AdminFlashSalesPage />} />
                       <Route path="delivery-zones" element={<AdminDeliveryZonesPage />} />
                       <Route path="settings"   element={<AdminSettingsPage />} />
+                      <Route path="articles"   element={<AdminArticlesPage />} />
                     </Route>
 
                     {/* ── Pharmacist routes ────────────────────────────────── */}
@@ -215,6 +221,10 @@ function App() {
                       <Route path="/returns"           element={<ProtectedRoute><ReturnsPage /></ProtectedRoute>} />
                       <Route path="/subscriptions"     element={<ProtectedRoute><SubscriptionsPage /></ProtectedRoute>} />
                       <Route path="/reviews"           element={<ReviewsPage />} />
+
+                      {/* Articles */}
+                      <Route path="/articles"          element={<ArticlesPage />} />
+                      <Route path="/articles/:slug"    element={<ArticleDetailPage />} />
 
                       {/* Medical & AI */}
                       <Route path="/drug-interactions" element={<DrugInteractionPage />} />

@@ -1,181 +1,119 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Repeat, Calendar, Package, Pause, Play, Trash2, Plus, ChevronRight, Clock } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Repeat, Calendar, Package, Clock, ChevronLeft, Loader2, Info } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { getMyOrders } from '../api/orders';
 
-const SubscriptionsPage = () => {
-  const [subscriptions, setSubscriptions] = useState([]);
-  const [activeTab, setActiveTab] = useState('active');
+export default function SubscriptionsPage() {
+  const [orders,  setOrders]  = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [tab,     setTab]     = useState('upcoming');
 
-  const tabs = [
-    { id: 'active', label: 'Active' },
-    { id: 'paused', label: 'Paused' },
-    { id: 'cancelled', label: 'Cancelled' },
-  ];
+  useEffect(() => {
+    getMyOrders({ status: 'delivered', limit: 20 })
+      .then(d => setOrders(d.orders || []))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
 
-  const filteredSubscriptions = subscriptions.filter((s) => s.status === activeTab);
+  const fmt = iso => iso ? new Date(iso).toLocaleDateString('ar-SA', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
 
   return (
-    <div dir="ltr" className="min-h-screen bg-gray-50">
+    <div dir="rtl" className="min-h-screen bg-gray-50 pb-8">
       {/* Header */}
-      <div className="bg-gradient-to-r from-cyan-500 to-blue-600 px-4 pt-8 pb-10 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="max-w-5xl mx-auto"
-        >
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
-              <Repeat className="w-6 h-6 text-white" />
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-white">My Subscriptions</h1>
-          </div>
-          <p className="text-cyan-50 text-sm sm:text-base">
-            Manage your recurring medication and product deliveries
-          </p>
-        </motion.div>
+      <div className="bg-gradient-to-br from-purple-600 to-indigo-700 px-4 pt-8 pb-16">
+        <div className="max-w-lg mx-auto">
+          <h1 className="text-xl font-bold text-white flex items-center gap-2 mb-1">
+            <Repeat className="w-5 h-5" /> الاشتراكات والطلبات المتكررة
+          </h1>
+          <p className="text-purple-200 text-sm">جدول طلباتك المتكررة للأدوية الدورية</p>
+        </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6">
-        {/* New Subscription Button */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.1 }}
-          className="mb-6"
-        >
-          <button className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white border-2 border-dashed border-cyan-300 hover:border-cyan-500 text-cyan-600 hover:text-cyan-700 font-semibold py-3 px-6 rounded-2xl shadow-sm hover:shadow-md transition-all">
-            <Plus className="w-5 h-5" />
-            Set Up a New Subscription
-          </button>
-        </motion.div>
+      <div className="max-w-lg mx-auto px-4 -mt-10 space-y-4">
+        {/* Coming soon card */}
+        <div className="bg-white rounded-2xl border border-purple-200 shadow-sm p-5">
+          <div className="flex gap-3">
+            <div className="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center flex-shrink-0">
+              <Info className="w-5 h-5 text-purple-600" />
+            </div>
+            <div>
+              <h2 className="font-bold text-gray-800 mb-1">خاصية الاشتراكات قريباً!</h2>
+              <p className="text-sm text-gray-500">
+                سيمكنك قريباً جدولة طلبات أدويتك المزمنة تلقائياً شهرياً أو أسبوعياً.
+                حتى ذلك الحين، استخدم ميزة "إعادة الطلب" أدناه.
+              </p>
+            </div>
+          </div>
+        </div>
 
         {/* Tabs */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.4, delay: 0.15 }}
-          className="flex gap-2 overflow-x-auto pb-2 mb-6 scrollbar-hide"
-        >
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`whitespace-nowrap px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-                activeTab === tab.id
-                  ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-md'
-                  : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
-              }`}
-            >
-              {tab.label}
+        <div className="flex gap-1 bg-white border border-gray-100 rounded-xl p-1 shadow-sm">
+          {[
+            { id: 'upcoming', label: 'إعادة الطلب' },
+            { id: 'history',  label: 'السجل' },
+          ].map(t => (
+            <button key={t.id} onClick={() => setTab(t.id)}
+              className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-colors ${
+                tab === t.id ? 'bg-purple-600 text-white shadow-sm' : 'text-gray-500 hover:bg-gray-100'
+              }`}>
+              {t.label}
             </button>
           ))}
-        </motion.div>
+        </div>
 
-        {/* Subscriptions List */}
-        {filteredSubscriptions.length === 0 ? (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.4, delay: 0.2 }}
-            className="bg-white rounded-3xl shadow-sm border border-gray-100 p-12 text-center"
-          >
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-cyan-50 rounded-full mb-4">
-              <Repeat className="w-10 h-10 text-cyan-500" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">No subscriptions yet</h3>
-            <p className="text-gray-500 text-sm max-w-sm mx-auto">
-              Set up automatic recurring deliveries for your regular medications and never run out again.
-            </p>
-          </motion.div>
-        ) : (
-          <div className="space-y-4">
-            {filteredSubscriptions.map((item, index) => (
-              <motion.div
-                key={item.id}
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.1 * index }}
-                className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-5 hover:shadow-md transition-shadow"
-              >
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 bg-gray-100 rounded-xl overflow-hidden flex items-center justify-center">
-                      <Package className="w-6 h-6 text-gray-400" />
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-gray-800">{item.productName}</h4>
-                      <div className="flex items-center gap-1.5 text-sm text-gray-500 mt-0.5">
-                        <Calendar className="w-3.5 h-3.5" />
-                        Delivered every {item.frequency}
+        {tab === 'upcoming' && (
+          <div className="space-y-3">
+            {loading ? (
+              <div className="flex items-center justify-center py-20 bg-white rounded-2xl border">
+                <Loader2 className="w-6 h-6 animate-spin text-purple-500" />
+              </div>
+            ) : orders.length === 0 ? (
+              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm text-center py-16 text-gray-400">
+                <Package className="w-12 h-12 mx-auto mb-4 opacity-20" />
+                <p className="font-medium">لا توجد طلبات سابقة للتكرار</p>
+                <Link to="/products" className="mt-3 inline-block text-sm text-purple-600 hover:underline">
+                  تصفح المنتجات
+                </Link>
+              </div>
+            ) : (
+              <>
+                <p className="text-xs text-gray-500 px-1">اضغط "إعادة الطلب" على أي طلب سابق لإنشاء طلب جديد بنفس المحتوى:</p>
+                {orders.slice(0, 10).map(o => (
+                  <div key={o._id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center">
+                        <Package className="w-4 h-4 text-purple-600" />
                       </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-gray-800">طلب #{o._id?.slice(-6).toUpperCase()}</p>
+                        <p className="text-xs text-gray-400">{fmt(o.createdAt)} — {o.items?.length || 0} منتج</p>
+                      </div>
+                      <Link to={`/orders/${o._id}`}
+                        className="flex items-center gap-1 px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-semibold">
+                        <Repeat className="w-3 h-3" /> تكرار
+                      </Link>
                     </div>
                   </div>
-                  <ChevronRight className="w-5 h-5 text-gray-400" />
-                </div>
-
-                <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                  <div className="flex items-center gap-1.5 text-sm text-gray-500">
-                    <Clock className="w-3.5 h-3.5" />
-                    Next delivery: {item.nextDelivery}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button className="flex items-center gap-1.5 text-sm font-medium text-cyan-600 hover:text-cyan-700 px-3 py-1.5 rounded-lg hover:bg-cyan-50 transition-colors">
-                      {item.status === 'active' ? (
-                        <>
-                          <Pause className="w-3.5 h-3.5" />
-                          Pause
-                        </>
-                      ) : (
-                        <>
-                          <Play className="w-3.5 h-3.5" />
-                          Resume
-                        </>
-                      )}
-                    </button>
-                    <button className="flex items-center gap-1.5 text-sm font-medium text-red-500 hover:text-red-600 px-3 py-1.5 rounded-lg hover:bg-red-50 transition-colors">
-                      <Trash2 className="w-3.5 h-3.5" />
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
+                ))}
+              </>
+            )}
           </div>
         )}
 
-        {/* Subscription Benefits */}
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.3 }}
-          className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4"
-        >
-          <div className="bg-white rounded-2xl border border-gray-100 p-5 text-center">
-            <div className="inline-flex items-center justify-center w-12 h-12 bg-cyan-50 rounded-xl mb-3">
-              <Repeat className="w-6 h-6 text-cyan-500" />
+        {tab === 'history' && (
+          <Link to="/orders"
+            className="flex items-center justify-between bg-white rounded-2xl border border-gray-100 shadow-sm p-5 hover:bg-gray-50 transition-colors">
+            <div className="flex items-center gap-3">
+              <Calendar className="w-5 h-5 text-purple-500" />
+              <div>
+                <p className="font-semibold text-gray-800">عرض كل الطلبات</p>
+                <p className="text-xs text-gray-400">سجل جميع طلباتك بالتفصيل</p>
+              </div>
             </div>
-            <h4 className="font-semibold text-gray-800 text-sm mb-1">Never Run Out</h4>
-            <p className="text-gray-500 text-xs">Automatic refills on your schedule</p>
-          </div>
-          <div className="bg-white rounded-2xl border border-gray-100 p-5 text-center">
-            <div className="inline-flex items-center justify-center w-12 h-12 bg-cyan-50 rounded-xl mb-3">
-              <Calendar className="w-6 h-6 text-cyan-500" />
-            </div>
-            <h4 className="font-semibold text-gray-800 text-sm mb-1">Flexible Timing</h4>
-            <p className="text-gray-500 text-xs">Pause, skip, or adjust anytime</p>
-          </div>
-          <div className="bg-white rounded-2xl border border-gray-100 p-5 text-center">
-            <div className="inline-flex items-center justify-center w-12 h-12 bg-cyan-50 rounded-xl mb-3">
-              <Package className="w-6 h-6 text-cyan-500" />
-            </div>
-            <h4 className="font-semibold text-gray-800 text-sm mb-1">Priority Packing</h4>
-            <p className="text-gray-500 text-xs">Subscriptions are prepared first</p>
-          </div>
-        </motion.div>
+            <ChevronLeft className="w-4 h-4 text-gray-400" />
+          </Link>
+        )}
       </div>
     </div>
   );
-};
-
-export default SubscriptionsPage;
+}
