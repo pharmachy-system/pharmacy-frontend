@@ -1,16 +1,24 @@
 import { NavLink, Outlet } from 'react-router-dom';
 import {
   LayoutDashboard, Package, ShoppingCart, Users,
-  ChevronRight, Pill, TrendingUp, Warehouse,
+  ChevronRight, Pill, TrendingUp, Warehouse, Tag,
+  BarChart2, Layers, Award, Zap, MapPin, Settings,
 } from 'lucide-react';
 
 const NAV = [
-  { to: '/admin',            icon: LayoutDashboard, label: 'Overview',  end: true },
-  { to: '/admin/products',   icon: Package,          label: 'Products' },
-  { to: '/admin/orders',     icon: ShoppingCart,     label: 'Orders' },
-  { to: '/admin/users',      icon: Users,            label: 'Users' },
-  { to: '/admin/analytics',  icon: TrendingUp,       label: 'Analytics' },
-  { to: '/admin/inventory',  icon: Warehouse,        label: 'Inventory' },
+  { to: '/admin',              icon: LayoutDashboard, label: 'Overview',   end: true },
+  { to: '/admin/products',     icon: Package,         label: 'Products' },
+  { to: '/admin/orders',       icon: ShoppingCart,    label: 'Orders' },
+  { to: '/admin/users',        icon: Users,           label: 'Users' },
+  { to: '/admin/analytics',    icon: TrendingUp,      label: 'Analytics' },
+  { to: '/admin/inventory',    icon: Warehouse,       label: 'Inventory' },
+  { to: '/admin/coupons',      icon: Tag,             label: 'Coupons' },
+  { to: '/admin/reports',      icon: BarChart2,       label: 'Reports' },
+  { to: '/admin/categories',   icon: Layers,          label: 'Categories' },
+  { to: '/admin/brands',       icon: Award,           label: 'Brands' },
+  { to: '/admin/flash-sales',  icon: Zap,             label: 'Flash Sales' },
+  { to: '/admin/delivery-zones', icon: MapPin,        label: 'Delivery' },
+  { to: '/admin/settings',     icon: Settings,        label: 'Settings' },
 ];
 
 export default function AdminLayout() {
