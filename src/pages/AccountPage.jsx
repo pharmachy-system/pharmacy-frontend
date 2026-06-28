@@ -61,7 +61,7 @@ export default function AccountPage() {
   return (
     <div dir="rtl" className="min-h-screen bg-gray-50 pb-8">
       {/* Profile header */}
-      <div className="bg-gradient-to-br from-cyan-600 to-blue-700 px-4 pt-8 pb-20">
+      <div className="bg-gradient-to-l from-pharmacy-blue to-slate-900 px-4 pt-8 pb-20">
         <div className="max-w-2xl mx-auto">
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center text-2xl font-black text-white overflow-hidden">
@@ -106,7 +106,7 @@ export default function AccountPage() {
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
             <div className="flex items-center justify-between mb-3">
               <h2 className="font-bold text-gray-800">آخر الطلبات</h2>
-              <Link to="/orders" className="text-xs text-cyan-600 hover:underline flex items-center gap-1">
+              <Link to="/orders" className="text-xs text-pharmacy-cyan hover:underline flex items-center gap-1">
                 عرض الكل <ChevronLeft className="w-3 h-3" />
               </Link>
             </div>
@@ -115,9 +115,9 @@ export default function AccountPage() {
                 const Icon = ORDER_ICONS[o.status] || Package;
                 return (
                   <Link key={o._id} to={`/orders/${o._id}`}
-                    className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 hover:bg-cyan-50 transition-colors">
-                    <div className="w-8 h-8 rounded-lg bg-cyan-100 flex items-center justify-center">
-                      <Icon className="w-4 h-4 text-cyan-600" />
+                    className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 hover:bg-pharmacy-cyan/5 transition-colors">
+                    <div className="w-8 h-8 rounded-lg bg-pharmacy-cyan/10 flex items-center justify-center">
+                      <Icon className="w-4 h-4 text-pharmacy-cyan" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-gray-800">#{o._id?.slice(-6).toUpperCase()}</p>

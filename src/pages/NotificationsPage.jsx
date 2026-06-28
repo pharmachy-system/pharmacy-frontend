@@ -43,11 +43,11 @@ export default function NotificationsPage() {
   };
 
   return (
-    <div dir="rtl" className="min-h-screen bg-gray-50 pb-8">
+    <div dir="rtl" className="min-h-screen bg-gradient-to-br from-white via-cyan-50/10 to-blue-50/5 pb-8">
       <div className="bg-white border-b border-gray-100 px-4 py-4 sticky top-0 z-10">
         <div className="max-w-lg mx-auto flex items-center justify-between">
           <h1 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-            <Bell className="w-5 h-5 text-cyan-600" />
+            <Bell className="w-5 h-5 text-pharmacy-cyan" />
             الإشعارات
             {unread > 0 && (
               <span className="w-5 h-5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">
@@ -57,7 +57,7 @@ export default function NotificationsPage() {
           </h1>
           <div className="flex items-center gap-3">
             {unread > 0 && (
-              <button onClick={markAllRead} className="flex items-center gap-1 text-xs text-cyan-600 hover:underline">
+              <button onClick={markAllRead} className="flex items-center gap-1 text-xs text-pharmacy-cyan hover:underline">
                 <CheckCheck className="w-3.5 h-3.5" /> قراءة الكل
               </button>
             )}
@@ -71,7 +71,7 @@ export default function NotificationsPage() {
         <div className="max-w-lg mx-auto mt-3 flex gap-1 bg-gray-100 rounded-xl p-1">
           {FILTERS.map(f => (
             <button key={f.id} onClick={() => setFilter(f.id)}
-              className={`flex-1 py-1.5 rounded-lg text-xs font-semibold transition-colors ${filter===f.id ? 'bg-white text-cyan-600 shadow-sm' : 'text-gray-500'}`}>
+              className={`flex-1 py-1.5 rounded-lg text-xs font-semibold transition-all ${filter===f.id ? 'bg-white text-pharmacy-blue shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}>
               {f.label}
             </button>
           ))}
@@ -99,14 +99,14 @@ export default function NotificationsPage() {
                   <motion.div key={n._id}
                     initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: 20 }}
                     onClick={() => !n.read && markRead(n._id)}
-                    className={`flex gap-3 p-4 rounded-2xl border cursor-pointer transition-colors ${n.read ? 'bg-white border-gray-100' : 'bg-cyan-50/50 border-cyan-100'}`}>
+                    className={`flex gap-3 p-4 rounded-2xl border cursor-pointer transition-colors ${n.read ? 'bg-white border-gray-100' : 'bg-pharmacy-cyan/5 border-pharmacy-cyan/15'}`}>
                     <div className={`w-10 h-10 rounded-xl ${cfg.bg} flex items-center justify-center flex-shrink-0`}>
                       <Icon className={`w-4 h-4 ${cfg.color}`} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
                         <p className={`text-sm font-semibold leading-snug ${n.read ? 'text-gray-700' : 'text-gray-900'}`}>{n.title}</p>
-                        {!n.read && <div className="w-2 h-2 rounded-full bg-cyan-500 flex-shrink-0 mt-1" />}
+                        {!n.read && <div className="w-2 h-2 rounded-full bg-pharmacy-cyan flex-shrink-0 mt-1" />}
                       </div>
                       {n.body && <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{n.body}</p>}
                       <p className="text-[10px] text-gray-400 mt-1">{fmtTime(n.createdAt)}</p>
